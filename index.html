@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inversiones 2026 · Patricio Tadeo</title>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root {
@@ -92,12 +90,11 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 /* Editable input */
 .inp {
   background:var(--card2); border:1px solid var(--border); border-radius:6px;
-  color:var(--text); padding:4px 8px; width:88px; font-size:12px; text-align:right;
+  color:var(--text); padding:4px 8px; width:100px; font-size:12px; text-align:right;
   outline:none; transition:border-color .15s;
 }
 .inp:focus { border-color:var(--hapi); }
 .inp.filled { border-color:rgba(59,130,246,.3); }
-.inp-lg { width:110px; padding:6px 10px; font-size:13px; font-weight:600; }
 
 /* Month label */
 .ml { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:.05em; }
@@ -106,7 +103,7 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 .bgt { display:flex; flex-direction:column; gap:8px; }
 .bgi { display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--card2); border-radius:8px; font-size:13px; }
 .bgi .bl { color:var(--muted); font-size:12px; }
-.bgi .bv { font-weight:600; }
+.bgi .bv { font-weight:600; display:flex; align-items:center; gap:8px; }
 .bgi.total { background:none; border-top:1px solid var(--border); border-radius:0; padding-top:13px; margin-top:2px; }
 
 /* Note box */
@@ -242,7 +239,7 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
       <div class="box">
         <div class="box-t">
           Seguimiento mensual · HAPI
-          <span class="saved" id="save-hapi">✓ Guardado en nube</span>
+          <span class="saved" id="save-hapi">✓ guardado</span>
         </div>
         <table class="tbl">
           <thead>
@@ -275,7 +272,7 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
       <div class="box">
         <div class="box-t">
           Seguimiento mensual · Balanz
-          <span class="saved" id="save-balanz">✓ Guardado en nube</span>
+          <span class="saved" id="save-balanz">✓ guardado</span>
         </div>
         <table class="tbl">
           <thead>
@@ -355,33 +352,50 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
   <div id="panel-presupuesto" class="panel">
     <div class="g2">
       <div class="box">
-        <div class="box-t" style="justify-content:space-between">
-          <span>Ingresos y Capacidad de Ahorro</span>
-          <span class="saved" id="save-ingreso">✓ Guardado en nube</span>
-        </div>
-        <div class="bgt" style="margin-bottom:20px;">
-          <div class="bgi" style="background:var(--card2); border:1px solid rgba(59,130,246,0.2)">
-            <span class="bl" style="color:var(--text); font-weight:600">💵 Ingreso Mensual Neto</span>
-            <span>
-              <input class="inp filled inp-lg" type="number" id="inp-ingreso" step="1" value="" placeholder="Ej. 1000" onchange="onIngresoChange(this)" style="color:var(--gain)">
-              <span style="font-size:12px;color:var(--muted);margin-left:4px">USD</span>
-            </span>
-          </div>
-          <div class="bgi"><span class="bl">📉 Total Aportes (Inversión)</span><span class="bv" style="color:var(--hapi)">- $115 USD</span></div>
-          <div class="bgi"><span class="bl">💸 Total Gastos Fijos/Variables</span><span class="bv" style="color:var(--loss)">- $370 USD</span></div>
-          <div class="bgi total" style="border-top:2px dashed var(--border); padding-top:15px">
-            <span style="font-weight:600; font-size:14px">💰 Capacidad Restante (Dinero Libre)</span>
-            <span style="font-weight:700; font-size:18px; color:var(--gain)" id="lbl-restante">$0.00 USD</span>
-          </div>
-        </div>
-
-        <div class="box-t">Desglose de Gastos Mensuales</div>
+        <div class="box-t">INGRESOS Y CAPACIDAD DE AHORRO <span class="saved" id="save-budget">✓ guardado</span></div>
         <div class="bgt">
-          <div class="bgi"><span class="bl">🏠 Alquiler</span><span class="bv">$120 USD</span></div>
-          <div class="bgi"><span class="bl">🍽️ Comida</span><span class="bv">$200 USD</span></div>
-          <div class="bgi"><span class="bl">📦 Otros gastos</span><span class="bv">$50 USD</span></div>
-          <div class="bgi total"><span style="font-weight:600">Total Gastos (sin inversión)</span><span style="font-weight:700;color:var(--fiducia)">$370 USD</span></div>
-          <div class="bgi" style="background:none;padding:6px 12px 0"><span class="bl">Equivalente Total Presupuestado (Inversión + Gastos)</span><span class="bv" style="color:var(--muted)">$520 USD</span></div>
+          <div class="bgi">
+            <span class="bl">💵 Cotización Dólar (ARS)</span>
+            <span class="bv"><input class="inp" type="number" id="inp-cotizacion" value="1300" onchange="updateBudget()"></span>
+          </div>
+          <div class="bgi">
+            <span class="bl">💵 Ingreso Mensual Neto</span>
+            <span class="bv"><input class="inp" type="number" id="inp-ingreso" value="1000" onchange="updateBudget()"> <span class="mu">USD</span></span>
+          </div>
+          <div class="bgi">
+            <span class="bl">📉 Total Aportes (Inversión)</span>
+            <span class="bv" style="color:var(--hapi)" id="bgt-aportes">—</span>
+          </div>
+          <div class="bgi">
+            <span class="bl">💸 Total Gastos Fijos/Variables</span>
+            <span class="bv" style="color:var(--loss)" id="bgt-gastos">—</span>
+          </div>
+          <div class="bgi" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border);">
+            <span class="bl" style="font-weight: 600;">💰 Capacidad Restante (Dinero Libre)</span>
+            <span class="bv" style="font-size: 16px; font-weight: 700;" id="bgt-restante">—</span>
+          </div>
+
+          <div style="margin-top: 14px;" class="box-t">DESGLOSE DE GASTOS MENSUALES</div>
+          <div class="bgi">
+            <span class="bl">🏠 Alquiler</span>
+            <span class="bv"><input class="inp" type="number" id="inp-alquiler" value="120" onchange="updateBudget()"> <span class="mu">USD</span></span>
+          </div>
+          <div class="bgi">
+            <span class="bl">🍽️ Comida</span>
+            <span class="bv"><input class="inp" type="number" id="inp-comida" value="200" onchange="updateBudget()"> <span class="mu">USD</span></span>
+          </div>
+          <div class="bgi">
+            <span class="bl">📦 Otros gastos</span>
+            <span class="bv"><input class="inp" type="number" id="inp-otros" value="50" onchange="updateBudget()"> <span class="mu">USD</span></span>
+          </div>
+          <div class="bgi total">
+            <span style="font-weight:600">Total Gastos (sin inversión)</span>
+            <span style="font-weight:700;color:var(--fiducia)" id="bgt-total-gastos">—</span>
+          </div>
+          <div class="bgi" style="background:none;padding:6px 12px 0">
+            <span class="bl">Equivalente Total Presupuestado (Gastos + Inversión)</span>
+            <span class="bv" style="color:var(--text); font-weight:700;" id="bgt-total-presupuesto">—</span>
+          </div>
         </div>
       </div>
       <div class="box">
@@ -390,40 +404,17 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
         <div style="margin-top:16px">
           <div class="box-t">Inversión como % del gasto total</div>
           <div style="background:var(--card2);border-radius:8px;overflow:hidden;height:12px;margin-bottom:6px">
-            <div style="background:var(--gain);height:100%;width:28.8%;border-radius:8px;"></div>
+            <div id="bar-percentage" style="background:var(--gain);height:100%;width:0%;border-radius:8px;transition:width .3s;"></div>
           </div>
-          <div style="font-size:11px;color:var(--muted)">$150 de $520 = <span style="color:var(--gain);font-weight:600">28.8%</span> del presupuesto va a inversión</div>
+          <div style="font-size:11px;color:var(--muted)" id="txt-percentage">—</div>
         </div>
       </div>
     </div>
   </div>
 
-</div>
-
-<script>
+</div><script>
 // ──────────────────────────────────────────────────────────────
-// CONFIGURACIÓN DE FIREBASE (CON TUS CLAVES REALES)
-// ──────────────────────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyBNKI7UZ6ALDOFKkDckrH2eoiSuhd98sK4",
-  authDomain: "dashboard-inversiones-362cb.firebaseapp.com",
-  projectId: "dashboard-inversiones-362cb",
-  storageBucket: "dashboard-inversiones-362cb.firebasestorage.app",
-  messagingSenderId: "123978189976",
-  appId: "1:123978189976:web:4a839a907529aa183ad4ed",
-  measurementId: "G-9B0XF5HGP5"
-};
-
-// Inicializar Firebase de forma segura
-try {
-  firebase.initializeApp(firebaseConfig);
-  window.db = firebase.firestore();
-} catch(e) {
-  console.error("Error inicializando Firebase:", e);
-}
-
-// ──────────────────────────────────────────────────────────────
-// DATA ESTRATÉGICA BASES
+// DATA
 // ──────────────────────────────────────────────────────────────
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
@@ -449,10 +440,11 @@ const BALANZ_BASE = [
   { inicial:239,  interes:1.05, aporte:30, esperado:270.05  },
   { inicial:425,  interes:1.05, aporte:30, esperado:456.05  },
   { inicial:456,  interes:1.05, aporte:30, esperado:487.05  },
+  { inicial:456,  interes:1.05, aporte:30, esperado:487.05  },
   { inicial:487,  interes:1.05, aporte:30, esperado:518.05  },
   { inicial:518,  interes:1.05, aporte:30, esperado:549.05  },
   { inicial:549,  interes:1.05, aporte:30, esperado:580.05  },
-  { inline:580,  interes:1.05, aporte:30, esperado:611.05  },
+  { inicial:580,  interes:1.05, aporte:30, esperado:611.05  },
   { inicial:611,  interes:1.05, aporte:30, esperado:642.05  },
   { inicial:642,  interes:1.05, aporte:30, esperado:673.05  },
 ];
@@ -482,55 +474,51 @@ const SSTATE = [
   { inicial:272.95,  interes:2.275, aporte:0,  final:275.23  },
   { inicial:275.23,  interes:2.294, aporte:0,  final:277.52  },
   { inicial:277.52,  interes:2.313, aporte:0,  final:279.83  },
-  { inicial:279.83,  interes:2.332, aporte:0,  final:282.16  },
+  { grid:279.83,  interes:2.332, aporte:0,  final:282.16  },
   { inicial:282.16,  interes:2.351, aporte:0,  final:284.51  },
   { inicial:284.51,  interes:2.376, aporte:0,  final:286.89  },
 ];
 
-// Valores reales (Fallback predeterminado por si falla la red)
 let hapiReal   = [510, 519, 620, 780, null, null, null, null, null, null, null, null];
 let balanzReal = [90,  136, 190, 223, null, null, null, null, null, null, null, null];
-let ingresoMensual = 0;
+
+// Presupuesto persistente por defecto
+let presupuestoData = {
+  cotizacion: 1300,
+  ingreso: 1000,
+  alquiler: 120,
+  comida: 200,
+  otros: 50
+};
 
 // ──────────────────────────────────────────────────────────────
-// SINCRONIZACIÓN CLOUD (FIREBASE)
+// STORAGE
 // ──────────────────────────────────────────────────────────────
-async function saveToCloud() {
-  if (!window.db) return;
+async function save() {
   try {
-    await window.db.collection("usuarios").doc("patricio").set({
-      hapiReal: hapiReal,
-      balanzReal: balanzReal,
-      ingresoMensual: ingresoMensual
-    });
-  } catch(e) {
-    console.error("Error guardando en la nube (revisá las Reglas de Firebase):", e);
-  }
+    await window.storage.set('pt-hapi',   JSON.stringify(hapiReal));
+    await window.storage.set('pt-balanz', JSON.stringify(balanzReal));
+    await window.storage.set('pt-presupuesto', JSON.stringify(presupuestoData));
+  } catch(e) {}
 }
 
-async function loadFromCloud() {
-  if (!window.db) return;
+async function load() {
   try {
-    const doc = await window.db.collection("usuarios").doc("patricio").get();
-    if (doc.exists) {
-      const data = doc.data();
-      if (data.hapiReal) hapiReal = data.hapiReal;
-      if (data.balanzReal) balanzReal = data.balanzReal;
-      if (data.ingresoMensual !== undefined) ingresoMensual = data.ingresoMensual;
-    } else {
-      // Si el documento no existe en tu base vacía, lo creamos con los datos iniciales
-      await saveToCloud();
-    }
-  } catch(e) {
-    console.error("Error cargando desde la nube (revisá las Reglas de Firebase):", e);
-  }
+    const h = await window.storage.get('pt-hapi');
+    const b = await window.storage.get('pt-balanz');
+    const p = await window.storage.get('pt-presupuesto');
+    if (h) hapiReal   = JSON.parse(h.value);
+    if (b) balanzReal = JSON.parse(b.value);
+    if (p) presupuestoData = JSON.parse(p.value);
+  } catch(e) {}
 }
 
 // ──────────────────────────────────────────────────────────────
-// UTILS & ESTRUCTURA INTERFAZ
+// UTILS
 // ──────────────────────────────────────────────────────────────
 const f2 = n => n == null ? '—' : '$' + n.toFixed(2);
 const fS = n => n == null ? '—' : '$' + n.toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
+const fARS = n => n == null ? '—' : '$' + Math.round(n).toLocaleString('es-AR') + ' ARS';
 
 function varBadge(real, esp) {
   if (real == null) return '<span class="mu">—</span>';
@@ -550,17 +538,73 @@ function currentMonthVal(data) {
   return data[Math.min(m, 11)].final;
 }
 
+// ──────────────────────────────────────────────────────────────
+// TABS
+// ──────────────────────────────────────────────────────────────
 const PANELS = ['overview','hapi','balanz','fiducia','simplestate','presupuesto'];
+
 function showTab(name) {
   PANELS.forEach(p => {
-    const panelEl = document.getElementById('panel-'+p);
-    const tabEl = document.getElementById('tab-'+p);
-    if(panelEl) panelEl.classList.toggle('on', p===name);
-    if(tabEl) tabEl.classList.toggle('on', p===name);
+    document.getElementById('panel-'+p).classList.toggle('on', p===name);
+    document.getElementById('tab-'+p).classList.toggle('on', p===name);
   });
 }
 function goTab(name) { showTab(name); }
 
+// ──────────────────────────────────────────────────────────────
+// PRESUPUESTO DINÁMICO
+// ──────────────────────────────────────────────────────────────
+async function updateBudget() {
+  presupuestoData.cotizacion = parseFloat(document.getElementById('inp-cotizacion').value) || 0;
+  presupuestoData.ingreso = parseFloat(document.getElementById('inp-ingreso').value) || 0;
+  presupuestoData.alquiler = parseFloat(document.getElementById('inp-alquiler').value) || 0;
+  presupuestoData.comida = parseFloat(document.getElementById('inp-comida').value) || 0;
+  presupuestoData.otros = parseFloat(document.getElementById('inp-otros').value) || 0;
+
+  const TC = presupuestoData.cotizacion;
+  const totalInversion = 115; // Suma fija de aportes de inversiones según tu tabla ($60+$30+$25)
+
+  const totalGastos = presupuestoData.alquiler + presupuestoData.comida + presupuestoData.otros;
+  const capacidadRestante = presupuestoData.ingreso - totalInversion - totalGastos;
+  const totalPresupuestado = totalGastos + totalInversion;
+
+  // Actualizar la interfaz en USD y ARS
+  document.getElementById('bgt-aportes').innerHTML = `-$${totalInversion} USD <span class="mu">(${fARS(totalInversion * TC)})</span>`;
+  document.getElementById('bgt-gastos').innerHTML = `-$${totalGastos} USD <span class="mu">(${fARS(totalGastos * TC)})</span>`;
+  
+  const restanteEl = document.getElementById('bgt-restante');
+  restanteEl.innerHTML = `$${capacidadRestante.toFixed(2)} USD <span style="font-size:12px; font-weight:normal;" class="mu">(${fARS(capacidadRestante * TC)})</span>`;
+  restanteEl.style.color = capacidadRestante >= 0 ? 'var(--gain)' : 'var(--loss)';
+
+  document.getElementById('bgt-total-gastos').innerHTML = `$${totalGastos} USD <span style="font-size:11px; font-weight:normal;" class="mu">(${fARS(totalGastos * TC)})</span>`;
+  document.getElementById('bgt-total-presupuesto').innerHTML = `$${totalPresupuestado} USD / ${fARS(totalPresupuestado * TC)}`;
+
+  // Porcentajes
+  const pct = totalPresupuestado > 0 ? ((totalInversion / totalPresupuestado) * 100).toFixed(1) : 0;
+  document.getElementById('bar-percentage').style.width = pct + '%';
+  document.getElementById('txt-percentage').innerHTML = `$${totalInversion} de $${totalPresupuestado} = <span style="color:var(--gain);font-weight:600">${pct}%</span> del presupuesto va a inversión`;
+
+  await save();
+  flash('save-budget');
+
+  // Actualizar gráfico circular de presupuesto si ya existe
+  if(pool['ch-budget']) {
+    pool['ch-budget'].data.datasets[0].data = [presupuestoData.alquiler, presupuestoData.comida, presupuestoData.otros, totalInversion];
+    pool['ch-budget'].update();
+  }
+}
+
+function loadBudgetInputs() {
+  document.getElementById('inp-cotizacion').value = presupuestoData.cotizacion;
+  document.getElementById('inp-ingreso').value = presupuestoData.ingreso;
+  document.getElementById('inp-alquiler').value = presupuestoData.alquiler;
+  document.getElementById('inp-comida').value = presupuestoData.comida;
+  document.getElementById('inp-otros').value = presupuestoData.todos || presupuestoData.otros;
+}
+
+// ──────────────────────────────────────────────────────────────
+// CARDS & TOTAL
+// ──────────────────────────────────────────────────────────────
 function updateCards() {
   const h = lastReal(hapiReal, HAPI_BASE);
   const b = lastReal(balanzReal, BALANZ_BASE);
@@ -575,7 +619,6 @@ function updateCards() {
 
   function setPill(id, val, goal) {
     const el = document.getElementById(id);
-    if(!el) return;
     const p  = ((val/goal)-1)*100;
     el.textContent = (p>=0?'+':'')+p.toFixed(1)+'% vs meta';
     el.className   = 'pill '+(p>=0?'up':'down');
@@ -584,22 +627,10 @@ function updateCards() {
   setPill('pill-balanz', b, 673);
 }
 
-function calculateRestante() {
-  const restante = ingresoMensual - 115 - 370;
-  const el = document.getElementById('lbl-restante');
-  if(!el) return;
-  el.textContent = f2(restante) + ' USD';
-  
-  if (restante < 0) {
-    el.style.color = 'var(--loss)';
-  } else if (restante > 0) {
-    el.style.color = 'var(--gain)';
-  } else {
-    el.style.color = 'var(--text)';
-  }
-}
-
-function renderTables() {
+// ──────────────────────────────────────────────────────────────
+// RENDER TABLES
+// ──────────────────────────────────────────────────────────────
+function renderHapi() {
   document.getElementById('tbody-hapi').innerHTML = HAPI_BASE.map((r,i) => {
     const rv = hapiReal[i];
     return `<tr>
@@ -608,12 +639,16 @@ function renderTables() {
       <td class="r mu">${r.aporte>0?'+$'+r.aporte:'—'}</td>
       <td class="r">${f2(r.esperado)}</td>
       <td class="r">
-        <input class="inp${rv!=null?' filled':''}" type="number" step="0.01" value="${rv!=null?rv:''}" placeholder="ingresar" onchange="onHapi(${i},this)">
+        <input class="inp${rv!=null?' filled':''}" type="number" step="0.01"
+          value="${rv!=null?rv:''}" placeholder="ingresar"
+          onchange="onHapi(${i},this)">
       </td>
       <td class="r">${varBadge(rv, r.esperado)}</td>
     </tr>`;
   }).join('');
+}
 
+function renderBalanz() {
   document.getElementById('tbody-balanz').innerHTML = BALANZ_BASE.map((r,i) => {
     const rv = balanzReal[i];
     return `<tr>
@@ -622,12 +657,16 @@ function renderTables() {
       <td class="r mu">${r.aporte>0?'+$'+r.aporte:'—'}</td>
       <td class="r">${f2(r.esperado)}</td>
       <td class="r">
-        <input class="inp${rv!=null?' filled':''}" type="number" step="0.01" value="${rv!=null?rv:''}" placeholder="ingresar" onchange="onBalanz(${i},this)">
+        <input class="inp${rv!=null?' filled':''}" type="number" step="0.01"
+          value="${rv!=null?rv:''}" placeholder="ingresar"
+          onchange="onBalanz(${i},this)">
       </td>
       <td class="r">${varBadge(rv, r.esperado)}</td>
     </tr>`;
   }).join('');
+}
 
+function renderFiducia() {
   document.getElementById('tbody-fiducia').innerHTML = FIDUCIA.map((r,i) => `<tr>
     <td><span class="ml">${MESES[i]}</span></td>
     <td class="r mu">${f2(r.inicial)}</td>
@@ -635,7 +674,9 @@ function renderTables() {
     <td class="r mu">${r.aporte>0?'+$'+r.aporte:'—'}</td>
     <td class="r">${f2(r.final)}</td>
   </tr>`).join('');
+}
 
+function renderSstate() {
   document.getElementById('tbody-sstate').innerHTML = SSTATE.map((r,i) => `<tr>
     <td><span class="ml">${MESES[i]}</span></td>
     <td class="r mu">${f2(r.inicial)}</td>
@@ -643,19 +684,15 @@ function renderTables() {
     <td class="r mu">${r.aporte>0?'+$'+r.aporte:'—'}</td>
     <td class="r">${f2(r.final)}</td>
   </tr>`).join('');
-  
-  const ingInp = document.getElementById('inp-ingreso');
-  if(ingInp) ingInp.value = ingresoMensual > 0 ? ingresoMensual : '';
-  calculateRestante();
 }
 
 // ──────────────────────────────────────────────────────────────
-// MANEJADORES DE INPUTS
+// INPUT HANDLERS
 // ──────────────────────────────────────────────────────────────
 async function onHapi(i, input) {
   hapiReal[i] = input.value===''? null : parseFloat(input.value);
   input.classList.toggle('filled', hapiReal[i]!=null);
-  await saveToCloud();
+  await save();
   flash('save-hapi');
   updateCards();
   updateCharts();
@@ -664,31 +701,32 @@ async function onHapi(i, input) {
 async function onBalanz(i, input) {
   balanzReal[i] = input.value===''? null : parseFloat(input.value);
   input.classList.toggle('filled', balanzReal[i]!=null);
-  await saveToCloud();
+  await save();
   flash('save-balanz');
   updateCards();
   updateCharts();
 }
 
-async function onIngresoChange(input) {
-  ingresoMensual = input.value === '' ? 0 : parseFloat(input.value);
-  await saveToCloud();
-  flash('save-ingreso');
-  calculateRestante();
-}
-
 function flash(id) {
   const el = document.getElementById(id);
-  if(!el) return;
-  el.classList.add('on');
-  setTimeout(()=>el.classList.remove('on'), 2200);
+  if(el) {
+    el.classList.add('on');
+    setTimeout(()=>el.classList.remove('on'), 2200);
+  }
 }
 
 // ──────────────────────────────────────────────────────────────
-// CONTROL GRÁFICOS (CHART.JS)
+// CHARTS
 // ──────────────────────────────────────────────────────────────
 const pool = {};
-const C = { hapi:'#3B82F6', b:'#10B981', f:'#F59E0B', s:'#8B5CF6', text:'#4E6880' };
+const C = {
+  hapi:  '#3B82F6',
+  b:     '#10B981',
+  f:     '#F59E0B',
+  s:     '#8B5CF6',
+  text:  '#4E6880',
+};
+
 const BASE_OPTS = {
   responsive:true, maintainAspectRatio:false,
   plugins:{ legend:{ display:false } },
@@ -700,10 +738,8 @@ const BASE_OPTS = {
 };
 
 function mkChart(id, cfg) {
-  const el = document.getElementById(id);
-  if (!el) return;
   if (pool[id]) pool[id].destroy();
-  pool[id] = new Chart(el.getContext('2d'), cfg);
+  pool[id] = new Chart(document.getElementById(id).getContext('2d'), cfg);
 }
 
 function mkLine(id, labels, datasets, extra={}) {
@@ -714,58 +750,82 @@ function mkDoughnut(id, labels, data, colors) {
   mkChart(id, {
     type:'doughnut',
     data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:2, borderColor:'#06101E' }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{ color:C.text, font:{size:11}, padding:10, boxWidth:10 } } }, cutout:'65%' }
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'right', labels:{ color:C.text, font:{size:11}, padding:10, boxWidth:10 } } },
+      cutout:'65%'
+    }
   });
 }
 
 function ds(label, data, color, fill=false, dash=[]) {
-  return { label, data, borderColor:color, backgroundColor:fill?color+'18':'transparent', fill, borderDash:dash, borderWidth:2, pointBackgroundColor:color, spanGaps:true };
+  return {
+    label, data,
+    borderColor: color,
+    backgroundColor: fill ? color+'18' : 'transparent',
+    fill, borderDash: dash,
+    borderWidth: 2,
+    pointBackgroundColor: color,
+    spanGaps: true,
+  };
 }
 
 function updateCharts() {
-  try {
-    const hE = HAPI_BASE.map(r => r.esperado);
-    const hR = hapiReal.map(v => v ?? null);
-    const bE = BALANZ_BASE.map(r => r.esperado);
-    const bR = balanzReal.map(v => v ?? null);
-    const fD = FIDUCIA.map(r => r.final);
-    const sD = SSTATE.map(r => r.final);
+  const hE = HAPI_BASE.map(r => r.esperado);
+  const hR = hapiReal.map(v => v ?? null);
+  const bE = BALANZ_BASE.map(r => r.esperado);
+  const bR = balanzReal.map(v => v ?? null);
+  const fD = FIDUCIA.map(r => r.final);
+  const sD = SSTATE.map(r => r.final);
 
-    const hLine = MESES.map((_,i) => hapiReal[i] ?? HAPI_BASE[i].esperado);
-    const bLine = MESES.map((_,i) => balanzReal[i] ?? BALANZ_BASE[i].esperado);
+  const hLine = MESES.map((_,i) => hapiReal[i] ?? HAPI_BASE[i].esperado);
+  const bLine = MESES.map((_,i) => balanzReal[i] ?? BALANZ_BASE[i].esperado);
 
-    mkLine('ch-overview', MESES, [ ds('HAPI',hLine,C.hapi,true), ds('Balanz',bLine,C.b,true), ds('Fiducia',fD,C.f), ds('Simplestate',sD,C.s) ]);
-    
-    const h = lastReal(hapiReal, HAPI_BASE);
-    const b = lastReal(balanzReal, BALANZ_BASE);
-    const f = currentMonthVal(FIDUCIA);
-    const s = currentMonthVal(SSTATE);
-    mkDoughnut('ch-pie', ['HAPI','Balanz','Fiducia','Simplestate'], [h,b,f,s], [C.hapi,C.b,C.f,C.s]);
+  mkLine('ch-overview', MESES, [
+    ds('HAPI',        hLine, C.hapi, true),
+    ds('Balanz',      bLine, C.b,    true),
+    ds('Fiducia',     fD,    C.f),
+    ds('Simplestate', sD,    C.s),
+  ]);
 
-    mkLine('ch-hapi', MESES, [ ds('Esperado', hE, C.hapi+'80', false, [5,4]), ds('Real', hR, C.hapi) ]);
-    mkLine('ch-balanz', MESES, [ ds('Esperado', bE, C.b+'80', false, [5,4]), ds('Real', bR, C.b) ]);
-    mkLine('ch-fiducia', MESES, [ ds('Proyectado', fD, C.f, true) ]);
-    mkLine('ch-sstate', MESES, [ ds('Proyectado', sD, C.s, true) ]);
-    mkDoughnut('ch-budget', ['Alquiler','Comida','Otros','Inversión'], [120,200,50,150], [C.hapi, C.b, C.f, C.s]);
-  } catch(e) {
-    console.error("Error dibujando gráficos:", e);
-  }
+  const h = lastReal(hapiReal, HAPI_BASE);
+  const b = lastReal(balanzReal, BALANZ_BASE);
+  const f = currentMonthVal(FIDUCIA);
+  const s = currentMonthVal(SSTATE);
+  mkDoughnut('ch-pie', ['HAPI','Balanz','Fiducia','Simplestate'], [h,b,f,s], [C.hapi,C.b,C.f,C.s]);
+
+  mkLine('ch-hapi', MESES, [
+    ds('Esperado', hE, C.hapi+'80', false, [5,4]),
+    ds('Real',     hR, C.hapi),
+  ]);
+
+  mkLine('ch-balanz', MESES, [
+    ds('Esperado', bE, C.b+'80', false, [5,4]),
+    ds('Real',     bR, C.b),
+  ]);
+
+  mkLine('ch-fiducia', MESES, [ ds('Proyectado', fD, C.f, true) ]);
+  mkLine('ch-sstate', MESES, [ ds('Proyectado', sD, C.s, true) ]);
+
+  mkDoughnut('ch-budget',
+    ['Alquiler','Comida','Otros','Inversión'],
+    [presupuestoData.alquiler, presupuestoData.comida, presupuestoData.otros, 115],
+    [C.hapi, C.b, C.f, C.s]
+  );
 }
 
 // ──────────────────────────────────────────────────────────────
-// INICIALIZACIÓN DE LA APP (A PRUEBA DE FALLOS)
+// INIT
 // ──────────────────────────────────────────────────────────────
 async function init() {
-  // Intentamos cargar la nube, pero si falla no frena la app
-  try {
-    await loadFromCloud();
-  } catch(e) {
-    console.warn("No se pudo sincronizar con Firebase, usando caché local.");
-  }
-
-  // Pintar interfaz pase lo que pase
-  renderTables();
+  await load();
+  loadBudgetInputs();
+  renderHapi();
+  renderBalanz();
+  renderFiducia();
+  renderSstate();
   updateCards();
+  updateBudget();
   updateCharts();
 }
 

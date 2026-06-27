@@ -331,7 +331,15 @@ let labels = {
   inv1: "HAPI", inv2: "Balanz", inv3: "Fondo Fiducia", inv4: "Simplestate",
   exp1: "🏠 Alquiler", exp2: "🍽️ Comida", exp3: "📦 Otros gastos"
 };
-
+const firebaseConfig = {
+    apiKey: "AIzaSyBNKI7UZ6ALDOFKkDckrH2eoiSuhd98sK4",
+    authDomain: "dashboard-inversiones-362cb.firebaseapp.com",
+    projectId: "dashboard-inversiones-362cb",
+    storageBucket: "dashboard-inversiones-362cb.firebasestorage.app",
+    messagingSenderId: "123978189976",
+    appId: "1:123978189976:web:4a839a907529aa183ad4ed",
+    measurementId: "G-9B0XF5HGP5"
+  };
 async function loadFromCloud() {
   if (!currentUser) return;
   try {

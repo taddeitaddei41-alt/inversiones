@@ -39,7 +39,7 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
   padding: 32px;
   border-radius: 16px;
   width: 100%;
-  max-width: 380px;
+  max-width: 390px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 .login-box h2 {
@@ -54,6 +54,12 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
   font-size: 13px;
   text-align: center;
   margin-bottom: 24px;
+}
+.form-panel {
+  display: none;
+}
+.form-panel.active {
+  display: block;
 }
 .form-group {
   margin-bottom: 18px;
@@ -97,8 +103,31 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 .btn-login:hover {
   background: #2563EB;
 }
+.auth-links {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12px;
+}
+.auth-links a {
+  color: var(--hapi);
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  margin: 4px 8px;
+}
+.auth-links a:hover {
+  text-decoration: underline;
+}
 .login-error {
   color: var(--loss);
+  font-size: 12px;
+  margin-top: 14px;
+  text-align: center;
+  min-height: 18px;
+  font-weight: 500;
+}
+.login-success {
+  color: var(--gain);
   font-size: 12px;
   margin-top: 14px;
   text-align: center;
@@ -202,20 +231,59 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 
 <div id="login-screen" class="login-container">
   <div class="login-box">
-    <h2>📊 Inversiones 2026</h2>
-    <p>Ingresa tus credenciales para acceder</p>
-    <form id="login-form">
-      <div class="form-group">
-        <label for="email">Correo electrónico</label>
-        <input type="email" id="email" placeholder="tu@email.com" required>
+    <h2 id="auth-box-title">📊 Inversiones 2026</h2>
+    <p id="auth-box-subtitle">Ingresa tus credenciales para acceder</p>
+    
+    <div id="panel-login-form" class="form-panel active">
+      <form id="login-form">
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="login-email" placeholder="tu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="login-password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-login">Ingresar</button>
+      </form>
+      <div class="auth-links">
+        <a onclick="switchAuthPanel('register')">Crear una cuenta</a> • 
+        <a onclick="switchAuthPanel('reset')">¿Olvidaste tu contraseña?</a>
       </div>
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" placeholder="••••••••" required>
+    </div>
+
+    <div id="panel-register-form" class="form-panel">
+      <form id="register-form">
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="register-email" placeholder="ejemplo@correo.com" required>
+        </div>
+        <div class="form-group">
+          <label>Contraseña (mínimo 6 caracteres)</label>
+          <input type="password" id="register-password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-login" style="background:var(--balanz);">Registrarse</button>
+      </form>
+      <div class="auth-links">
+        <a onclick="switchAuthPanel('login')">¿Ya tienes cuenta? Inicia sesión</a>
       </div>
-      <button type="submit" class="btn-login">Ingresar</button>
-    </form>
-    <div id="login-error" class="login-error"></div>
+    </div>
+
+    <div id="panel-reset-form" class="form-panel">
+      <form id="reset-form">
+        <div class="form-group">
+          <label>Correo electrónico de recuperación</label>
+          <input type="email" id="reset-email" placeholder="tu@email.com" required>
+        </div>
+        <button type="submit" class="btn-login" style="background:var(--fiducia); color:#000;">Enviar enlace de recuperación</button>
+      </form>
+      <div class="auth-links">
+        <a onclick="switchAuthPanel('login')">Volver al inicio de sesión</a>
+      </div>
+    </div>
+
+    <div id="auth-error" class="login-error"></div>
+    <div id="auth-success" class="login-success"></div>
   </div>
 </div>
 
@@ -402,131 +470,4 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
     <div id="panel-fiducia" class="panel">
       <div class="g2">
         <div class="box">
-          <div class="box-t">Proyección 2026 · Fiducia (6% anual fijo)</div>
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Mes</th>
-                <th class="r">Inicial</th>
-                <th class="r">Interés</th>
-                <th class="r">Aporte</th>
-                <th class="r">Final proy.</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-fiducia"></tbody>
-          </table>
-        </div>
-        <div class="box">
-          <div class="box-t">Crecimiento proyectado · Fiducia</div>
-          <div class="ch"><canvas id="ch-fiducia"></canvas></div>
-          <div class="note" style="margin-top:14px">
-            Inversión de renta fija a <strong>6% anual</strong>. Aportes de $25/mes (excepto febrero). Proyección hasta diciembre 2026: <strong>$389.93 USD</strong>.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="panel-simplestate" class="panel">
-      <div class="g2">
-        <div class="box">
-          <div class="box-t">Proyección 2026 · Simplestate (10% anual fijo)</div>
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Mes</th>
-                <th class="r">Inicial</th>
-                <th class="r">Interés</th>
-                <th class="r">Aporte</th>
-                <th class="r">Final proy.</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-sstate"></tbody>
-          </table>
-        </div>
-        <div class="box">
-          <div class="box-t">Crecimiento proyectado · Simplestate</div>
-          <div class="ch"><canvas id="ch-sstate"></canvas></div>
-          <div class="note" style="margin-top:14px">
-            Inversión inmobiliaria a <strong>10% anual</strong>. Aporte inicial de $13 en enero. Capital compuesto automáticamente. Proyección dic: <strong>$286.89 USD</strong>.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="panel-presupuesto" class="panel">
-      <div class="g2">
-        <div class="box">
-          <div class="box-t">Gastos mensuales</div>
-          <div class="bgt">
-            <div class="bgi"><span class="bl">🏠 Alquiler</span><span class="bv">$120 USD</span></div>
-            <div class="bgi"><span class="bl">🍽️ Comida</span><span class="bv">$200 USD</span></div>
-            <div class="bgi"><span class="bl">📦 Otros gastos</span><span class="bv">$50 USD</span></div>
-            <div class="bgi"><span class="bl">📈 Inversión</span><span class="bv">$150 USD</span></div>
-            <div class="bgi total"><span style="font-weight:600">Total USD</span><span style="font-weight:700;color:var(--fiducia)">$520 USD</span></div>
-            <div class="bgi" style="background:none;padding:6px 12px 0"><span class="bl">Equivalente ARS</span><span class="bv" style="color:var(--muted)">$780,000</span></div>
-          </div>
-          <div class="note">
-            De los $150 USD de inversión mensual: $60 van a HAPI, $30 a Balanz, $25 a Fiducia, $13 a Simplestate, y ~$22 disponibles para ajustes o acumulación en cash.
-          </div>
-        </div>
-        <div class="box">
-          <div class="box-t">Distribución de gastos</div>
-          <div class="ch"><canvas id="ch-budget"></canvas></div>
-          <div style="margin-top:16px">
-            <div class="box-t">Inversión como % del gasto total</div>
-            <div style="background:var(--card2);border-radius:8px;overflow:hidden;height:12px;margin-bottom:6px">
-              <div style="background:var(--gain);height:100%;width:28.8%;border-radius:8px;"></div>
-            </div>
-            <div style="font-size:11px;color:var(--muted)">$150 de $520 = <span style="color:var(--gain);font-weight:600">28.8%</span> del presupuesto va a inversión</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div></div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-  const firebaseConfig = {
-      apiKey: "AIzaSyBNKI7UZ6ALDOFKkDckrH2eoiSuhd98sK4",
-      authDomain: "dashboard-inversiones-362cb.firebaseapp.com",
-      projectId: "dashboard-inversiones-362cb",
-      storageBucket: "dashboard-inversiones-362cb.firebasestorage.app",
-      messagingSenderId: "123978189976",
-      appId: "1:123978189976:web:4a839a907529aa183ad4ed",
-      measurementId: "G-9B0XF5HGP5"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  const loginScreen = document.getElementById('login-screen');
-  const dashboardScreen = document.getElementById('dashboard-screen');
-  const errorEl = document.getElementById('login-error');
-
-  // Monitorear estado de login
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      loginScreen.style.display = 'none';
-      dashboardScreen.style.display = 'block';
-      if (window.initDashboard) {
-        window.initDashboard();
-      }
-    } else {
-      loginScreen.style.display = 'flex';
-      dashboardScreen.style.display = 'none';
-    }
-  });
-
-  // Procesar Formulario de Login
-  document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    errorEl.textContent = 'Verificando...';
-
-    signInWithEmailAndPassword(auth, email, pass)
-      .catch(error => {
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user
+          <div class="box-t">Proyección 2

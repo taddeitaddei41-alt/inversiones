@@ -3,34 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Multi-Usuario · Inversiones</title>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<title>Inversiones 2026 · Patricio Tadeo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #06101E; --card: #0C1A2E; --card2: #0F2040; --border: #162840;
-  --text: #DDE6F0; --muted: #4E6880; --hapi: #3B82F6; --balanz: #10B981;
-  --fiducia: #F59E0B; --sstate: #8B5CF6; --gain: #22C55E; --loss: #F43F5E;
+  --bg: #06101E;
+  --card: #0C1A2E;
+  --card2: #0F2040;
+  --border: #162840;
+  --text: #DDE6F0;
+  --muted: #4E6880;
+  --hapi: #3B82F6;
+  --balanz: #10B981;
+  --fiducia: #F59E0B;
+  --sstate: #8B5CF6;
+  --gain: #22C55E;
+  --loss: #F43F5E;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; }
+.shell { max-width:1280px; margin:0 auto; padding:24px 16px 48px; }
 
-/* ── LOGIN SCREEN ── */
-#auth-shell { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
-.auth-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:30px; width:100%; max-width:350px; text-align:center; }
-.auth-box h2 { margin-bottom:5px; font-size:20px; }
-.auth-box p { color:var(--muted); font-size:13px; margin-bottom:20px; }
-.auth-inp { width:100%; background:var(--card2); border:1px solid var(--border); color:white; padding:10px 12px; border-radius:8px; margin-bottom:12px; outline:none; }
-.auth-inp:focus { border-color:var(--hapi); }
-.btn-primary { width:100%; background:var(--hapi); color:white; border:none; padding:10px; border-radius:8px; font-weight:600; cursor:pointer; margin-bottom:10px; transition:0.2s; }
-.btn-primary:hover { opacity:0.9; }
-.btn-sec { background:transparent; border:1px solid var(--border); color:var(--text); }
-.error-msg { color:var(--loss); font-size:12px; margin-bottom:10px; display:none; }
-
-/* ── DASHBOARD APP ── */
-#app-shell { display:none; max-width:1280px; margin:0 auto; padding:24px 16px 48px; }
+/* Login Screen Styles */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 16px;
+}
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 32px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.login-box h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-align: center;
+  letter-spacing: -0.02em;
+}
+.login-box p {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group label {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.form-group input {
+  width: 100%;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .15s;
+}
+.form-group input:focus {
+  border-color: var(--hapi);
+}
+.btn-login {
+  width: 100%;
+  background: var(--hapi);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background .15s;
+}
+.btn-login:hover {
+  background: #2563EB;
+}
+.login-error {
+  color: var(--loss);
+  font-size: 12px;
+  margin-top: 14px;
+  text-align: center;
+  min-height: 18px;
+  font-weight: 500;
+}
 
 /* Header */
 .hdr { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
@@ -39,11 +113,18 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 .hdr-right   { text-align:right; }
 .hdr-right .lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
 .hdr-right .val { font-size:30px; font-weight:700; color:var(--gain); letter-spacing:-.02em; line-height:1; margin-top:2px; }
-.btn-logout { background:transparent; border:1px solid var(--loss); color:var(--loss); padding:4px 10px; border-radius:6px; font-size:11px; cursor:pointer; margin-left:15px; }
 
 /* Cards row */
 .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-bottom:20px; }
-.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; border-left:3px solid var(--c); cursor:pointer; transition:background .15s; }
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px 18px;
+  border-left:3px solid var(--c);
+  cursor:pointer;
+  transition:background .15s;
+}
 .card:hover { background:var(--card2); }
 .card .c-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
 .card .c-val { font-size:26px; font-weight:700; color:var(--c); letter-spacing:-.02em; }
@@ -53,472 +134,399 @@ body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkM
 .pill.down { background:rgba(244,63,94,.12);  color:#F43F5E; }
 .pill.neu  { background:rgba(78,104,128,.15); color:var(--muted); }
 
-/* Tabs & Panels */
+/* Tabs */
 .tabs { display:flex; gap:2px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:4px; margin-bottom:18px; overflow-x:auto; width:fit-content; }
 .tab { padding:7px 16px; border-radius:7px; border:none; background:none; color:var(--muted); cursor:pointer; font-size:12px; font-weight:500; white-space:nowrap; transition:all .15s; }
 .tab.on { background:var(--card2); color:var(--text); }
+
+/* Panels */
 .panel { display:none; }
 .panel.on { display:block; }
+
+/* Grid layouts */
 .g2  { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
 .g1  { margin-bottom:14px; }
 @media(max-width:720px){ .g2 { grid-template-columns:1fr; } }
 
-/* Box & Utils */
+/* Box */
 .box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; }
-.box-t { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.box-t { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
 .saved { font-size:10px; color:var(--gain); opacity:0; transition:opacity .3s; }
 .saved.on { opacity:1; }
+
+/* Charts */
 .ch { position:relative; height:210px; }
 .ch-lg { position:relative; height:280px; }
 
-/* Tables */
+/* Table */
 .tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
 .tbl th { padding:7px 10px; color:var(--muted); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
 .tbl td { padding:8px 10px; border-bottom:1px solid rgba(22,40,64,.7); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.tbl tr:last-child td { border-bottom:none; }
+.tbl tr:hover td { background:rgba(255,255,255,.015); }
 .tbl .r  { text-align:right; }
 .tbl .mu { color:var(--muted); }
 .tbl .g  { color:var(--gain); }
 .tbl .l  { color:var(--loss); }
-.inp { background:var(--card2); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:4px 8px; width:90px; font-size:12px; text-align:right; outline:none; }
+
+/* Editable input */
+.inp {
+  background:var(--card2); border:1px solid var(--border); border-radius:6px;
+  color:var(--text); padding:4px 8px; width:88px; font-size:12px; text-align:right;
+  outline:none; transition:border-color .15s;
+}
 .inp:focus { border-color:var(--hapi); }
 .inp.filled { border-color:rgba(59,130,246,.3); }
 
-/* Budget styles */
+/* Month label */
+.ml { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:.05em; }
+
+/* Budget items */
 .bgt { display:flex; flex-direction:column; gap:8px; }
 .bgi { display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--card2); border-radius:8px; font-size:13px; }
 .bgi .bl { color:var(--muted); font-size:12px; }
-.bgi .bv { font-weight:600; display:flex; align-items:center; gap:8px; }
+.bgi .bv { font-weight:600; }
 .bgi.total { background:none; border-top:1px solid var(--border); border-radius:0; padding-top:13px; margin-top:2px; }
+
+/* Note box */
+.note { background:rgba(59,130,246,.07); border:1px solid rgba(59,130,246,.2); border-radius:10px; padding:13px 15px; font-size:12px; color:var(--muted); line-height:1.6; margin-top:14px; }
+.note strong { color:var(--text); }
+
+/* Dot legend */
+.dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
+.legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }
+.leg-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
 </style>
 </head>
 <body>
 
-<div id="auth-shell">
-  <div class="auth-box">
-    <h2>📊 Mi Dashboard</h2>
-    <p>Ingresa para administrar tus inversiones</p>
-    <div id="auth-error" class="error-msg">Error de credenciales</div>
-    <input type="email" id="auth-email" class="auth-inp" placeholder="Tu correo electrónico">
-    <input type="password" id="auth-password" class="auth-inp" placeholder="Contraseña">
-    <button class="btn-primary" onclick="login()">Iniciar Sesión</button>
-    <button class="btn-primary btn-sec" onclick="register()">Crear Cuenta Nueva</button>
+<div id="login-screen" class="login-container">
+  <div class="login-box">
+    <h2>📊 Inversiones 2026</h2>
+    <p>Ingresa tus credenciales para acceder</p>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" placeholder="tu@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-login">Ingresar</button>
+    </form>
+    <div id="login-error" class="login-error"></div>
   </div>
 </div>
 
-<div id="app-shell" class="shell">
-  <div class="hdr">
-    <div class="hdr-left">
-      <h1>📊 Dashboard de Inversiones</h1>
-      <p>Sincronizado en la nube · Cuenta: <span id="user-email-display" style="color:#fff"></span> <button class="btn-logout" onclick="logout()">Cerrar sesión</button></p>
-    </div>
-    <div class="hdr-right">
-      <div class="lbl">Portafolio total</div>
-      <div class="val" id="total-val">—</div>
-    </div>
-  </div>
+<div id="dashboard-screen" style="display:none;">
+  <div class="shell">
 
-  <div class="cards">
-    <div class="card" style="--c:var(--hapi)" onclick="goTab('hapi')">
-      <div class="c-lbl txt-inv1">HAPI</div>
-      <div class="c-val" id="card-hapi">—</div>
-      <div class="c-sub"><span>Rendimiento Variable</span></div>
-    </div>
-    <div class="card" style="--c:var(--balanz)" onclick="goTab('balanz')">
-      <div class="c-lbl txt-inv2">Balanz</div>
-      <div class="c-val" id="card-balanz">—</div>
-      <div class="c-sub"><span>Rendimiento Variable</span></div>
-    </div>
-    <div class="card" style="--c:var(--fiducia)" onclick="goTab('fiducia')">
-      <div class="c-lbl txt-inv3">Fondo Fiducia</div>
-      <div class="c-val" id="card-fiducia">—</div>
-      <div class="c-sub"><span>Rendimiento Fijo</span></div>
-    </div>
-    <div class="card" style="--c:var(--sstate)" onclick="goTab('simplestate')">
-      <div class="c-lbl txt-inv4">Simplestate</div>
-      <div class="c-val" id="card-sstate">—</div>
-      <div class="c-sub"><span>Rendimiento Fijo</span></div>
-    </div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab on" id="tab-overview" onclick="showTab('overview')">Vista General</button>
-    <button class="tab" id="tab-hapi" onclick="showTab('hapi')"><span class="txt-inv1">HAPI</span></button>
-    <button class="tab" id="tab-balanz" onclick="showTab('balanz')"><span class="txt-inv2">Balanz</span></button>
-    <button class="tab" id="tab-fiducia" onclick="showTab('fiducia')"><span class="txt-inv3">Fiducia</span></button>
-    <button class="tab" id="tab-simplestate" onclick="showTab('simplestate')"><span class="txt-inv4">Simplestate</span></button>
-    <button class="tab" id="tab-presupuesto" onclick="showTab('presupuesto')">Presupuesto</button>
-    <button class="tab" id="tab-ajustes" onclick="showTab('ajustes')" style="color:var(--sstate)">⚙️ Ajustes</button>
-  </div>
-
-  <div id="panel-overview" class="panel on">
-    <div class="g2">
-      <div class="box"><div class="box-t"><span>Evolución mensual</span></div><div class="ch"><canvas id="ch-overview"></canvas></div></div>
-      <div class="box"><div class="box-t"><span>Distribución actual</span></div><div class="ch"><canvas id="ch-pie"></canvas></div></div>
-    </div>
-  </div>
-
-  <div id="panel-hapi" class="panel">
-    <div class="g2">
-      <div class="box">
-        <div class="box-t"><span>Seguimiento mensual · <span class="txt-inv1">HAPI</span></span><span class="saved" id="save-hapi">✓ Guardado</span></div>
-        <table class="tbl">
-          <thead><tr><th>Mes</th><th class="r">Inicial</th><th class="r">Aporte</th><th class="r">Esperado</th><th class="r">Real (editar)</th><th class="r">Var.</th></tr></thead>
-          <tbody id="tbody-hapi"></tbody>
-        </table>
+    <div class="hdr">
+      <div class="hdr-left">
+        <h1>📊 Dashboard de Inversiones</h1>
+        <p>2026 · Patricio Tadeo · Actualizado en tiempo real</p>
+        <button onclick="logoutUser()" style="background:var(--card2); border:1px solid var(--border); color:var(--text); padding:4px 10px; border-radius:6px; font-size:11px; cursor:pointer; margin-top:8px; transition:background 0.15s;">🔒 Cerrar sesión</button>
       </div>
-      <div class="box"><div class="box-t"><span>Esperado vs Real · <span class="txt-inv1">HAPI</span></span></div><div class="ch"><canvas id="ch-hapi"></canvas></div></div>
-    </div>
-  </div>
-
-  <div id="panel-balanz" class="panel">
-    <div class="g2">
-      <div class="box">
-        <div class="box-t"><span>Seguimiento mensual · <span class="txt-inv2">Balanz</span></span><span class="saved" id="save-balanz">✓ Guardado</span></div>
-        <table class="tbl">
-          <thead><tr><th>Mes</th><th class="r">Inicial</th><th class="r">Aporte</th><th class="r">Esperado</th><th class="r">Real (editar)</th><th class="r">Var.</th></tr></thead>
-          <tbody id="tbody-balanz"></tbody>
-        </table>
+      <div class="hdr-right">
+        <div class="lbl">Portafolio total</div>
+        <div class="val" id="total-val">—</div>
       </div>
-      <div class="box"><div class="box-t"><span>Esperado vs Real · <span class="txt-inv2">Balanz</span></span></div><div class="ch"><canvas id="ch-balanz"></canvas></div></div>
     </div>
-  </div>
 
-  <div id="panel-fiducia" class="panel">
-    <div class="box" style="margin-bottom:14px">
-        <div class="box-t"><span>Proyección 2026 · <span class="txt-inv3">Fiducia</span></span></div>
-        <table class="tbl">
-          <thead><tr><th>Mes</th><th class="r">Inicial</th><th class="r">Interés</th><th class="r">Aporte</th><th class="r">Final proy.</th></tr></thead>
-          <tbody id="tbody-fiducia"></tbody>
-        </table>
+    <div class="cards">
+      <div class="card" style="--c:var(--hapi)" onclick="goTab('hapi')">
+        <div class="c-lbl">HAPI · Acciones Ext.</div>
+        <div class="c-val" id="card-hapi">—</div>
+        <div class="c-sub">
+          <span>Meta dic: $1,260</span>
+          <span class="pill neu" id="pill-hapi">12% ref.</span>
+        </div>
+      </div>
+      <div class="card" style="--c:var(--balanz)" onclick="goTab('balanz')">
+        <div class="c-lbl">Balanz · Acciones Arg.</div>
+        <div class="c-val" id="card-balanz">—</div>
+        <div class="c-sub">
+          <span>Meta dic: $673</span>
+          <span class="pill neu" id="pill-balanz">15% ref.</span>
+        </div>
+      </div>
+      <div class="card" style="--c:var(--fiducia)" onclick="goTab('fiducia')">
+        <div class="c-lbl">Fondo Fiducia</div>
+        <div class="c-val" id="card-fiducia">—</div>
+        <div class="c-sub">
+          <span>Meta dic: $389.93</span>
+          <span class="pill up">6% anual fijo</span>
+        </div>
+      </div>
+      <div class="card" style="--c:var(--sstate)" onclick="goTab('simplestate')">
+        <div class="c-lbl">Simplestate</div>
+        <div class="c-val" id="card-sstate">—</div>
+        <div class="c-sub">
+          <span>Meta dic: $286.89</span>
+          <span class="pill up">10% anual fijo</span>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div id="panel-simplestate" class="panel">
-    <div class="box" style="margin-bottom:14px">
-        <div class="box-t"><span>Proyección 2026 · <span class="txt-inv4">Simplestate</span></span></div>
-        <table class="tbl">
-          <thead><tr><th>Mes</th><th class="r">Inicial</th><th class="r">Interés</th><th class="r">Aporte</th><th class="r">Final proy.</th></tr></thead>
-          <tbody id="tbody-sstate"></tbody>
-        </table>
+    <div class="tabs">
+      <button class="tab on" id="tab-overview"    onclick="showTab('overview')">Vista General</button>
+      <button class="tab"    id="tab-hapi"         onclick="showTab('hapi')">HAPI</button>
+      <button class="tab"    id="tab-balanz"        onclick="showTab('balanz')">Balanz</button>
+      <button class="tab"    id="tab-fiducia"       onclick="showTab('fiducia')">Fiducia</button>
+      <button class="tab"    id="tab-simplestate"   onclick="showTab('simplestate')">Simplestate</button>
+      <button class="tab"    id="tab-presupuesto"   onclick="showTab('presupuesto')">Presupuesto</button>
     </div>
-  </div>
 
-  <div id="panel-presupuesto" class="panel">
-    <div class="g2">
-      <div class="box">
-        <div class="box-t"><span>INGRESOS Y CAPACIDAD DE AHORRO</span><span class="saved" id="save-budget">✓ guardado</span></div>
-        <div class="bgt">
-          <div class="bgi"><span class="bl">💵 Cotización Dólar (ARS)</span><span class="bv"><input class="inp" type="number" id="inp-cotizacion" value="1300" onchange="updateBudget()"></span></div>
-          <div class="bgi"><span class="bl">💵 Ingreso Mensual Neto</span><span class="bv"><input class="inp" type="number" id="inp-ingreso" value="1000" onchange="updateBudget()"> <span class="mu">USD</span></span></div>
-          <div class="bgi"><span class="bl">📉 Total Aportes (Inversión)</span><span class="bv" style="color:var(--hapi)" id="bgt-aportes">—</span></div>
-          <div class="bgi"><span class="bl">💸 Total Gastos Fijos/Variables</span><span class="bv" style="color:var(--loss)" id="bgt-gastos">—</span></div>
-          <div class="bgi" style="background: rgba(255,255,255,0.03); border: 1px dashed var(--border);">
-            <span class="bl" style="font-weight: 600;">💰 Capacidad Restante (Libre)</span><span class="bv" style="font-size: 16px; font-weight: 700;" id="bgt-restante">—</span>
+    <div id="panel-overview" class="panel on">
+      <div class="g1 box">
+        <div class="box-t">Evolución mensual — todos los portafolios</div>
+        <div class="ch-lg"><canvas id="ch-overview"></canvas></div>
+        <div class="legend">
+          <div class="leg-item"><span class="dot" style="background:var(--hapi)"></span>HAPI</div>
+          <div class="leg-item"><span class="dot" style="background:var(--balanz)"></span>Balanz</div>
+          <div class="leg-item"><span class="dot" style="background:var(--fiducia)"></span>Fiducia</div>
+          <div class="leg-item"><span class="dot" style="background:var(--sstate)"></span>Simplestate</div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="box">
+          <div class="box-t">Distribución actual del portafolio</div>
+          <div class="ch"><canvas id="ch-pie"></canvas></div>
+        </div>
+        <div class="box">
+          <div class="box-t">Aportes y tasas</div>
+          <table class="tbl">
+            <thead><tr><th>Portafolio</th><th>Aporte/mes</th><th>Tasa ref.</th><th>Tipo</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--hapi);font-weight:500">HAPI</td>
+                <td class="r">$60</td>
+                <td class="r" style="color:var(--hapi)">12%</td>
+                <td class="mu">Mercado</td>
+              </tr>
+              <tr>
+                <td style="color:var(--balanz);font-weight:500">Balanz</td>
+                <td class="r">$30</td>
+                <td class="r" style="color:var(--balanz)">15%</td>
+                <td class="mu">Mercado</td>
+              </tr>
+              <tr>
+                <td style="color:var(--fiducia);font-weight:500">Fiducia</td>
+                <td class="r">$25</td>
+                <td class="r" style="color:var(--fiducia)">6%</td>
+                <td class="mu">Fijo</td>
+              </tr>
+              <tr>
+                <td style="color:var(--sstate);font-weight:500">Simplestate</td>
+                <td class="r">$0</td>
+                <td class="r" style="color:var(--sstate)">10%</td>
+                <td class="mu">Fijo</td>
+              </tr>
+              <tr style="font-weight:600;border-top:1px solid var(--border)">
+                <td>Total</td>
+                <td class="r">$115</td>
+                <td class="r mu">—</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="note" style="margin-top:14px">
+            <strong>Próxima acción:</strong> Venta de posiciones en HAPI el <strong>15 de junio</strong>. Capital a liberar: ~$205 USD. ETF núcleo objetivo: <strong>RSP</strong> (S&P 500 Equal Weight).
           </div>
-          <div style="margin-top: 14px;" class="box-t"><span>DESGLOSE DE GASTOS MENSUALES</span></div>
-          <div class="bgi"><span class="bl txt-exp1">🏠 Alquiler</span><span class="bv"><input class="inp" type="number" id="inp-alquiler" value="120" onchange="updateBudget()"> <span class="mu">USD</span></span></div>
-          <div class="bgi"><span class="bl txt-exp2">🍽️ Comida</span><span class="bv"><input class="inp" type="number" id="inp-comida" value="200" onchange="updateBudget()"> <span class="mu">USD</span></span></div>
-          <div class="bgi"><span class="bl txt-exp3">📦 Otros gastos</span><span class="bv"><input class="inp" type="number" id="inp-otros" value="50" onchange="updateBudget()"> <span class="mu">USD</span></span></div>
-        </div>
-      </div>
-      <div class="box">
-        <div class="box-t"><span>Distribución de presupuesto</span></div>
-        <div class="ch"><canvas id="ch-budget"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="panel-ajustes" class="panel">
-    <div class="g2">
-      <div class="box">
-        <div class="box-t"><span>Configuración de Inversiones</span><span class="saved" id="save-ajustes">✓ guardado</span></div>
-        <p style="font-size:12px; color:var(--muted); margin-bottom:15px">Personaliza los nombres de las plataformas o activos donde estás invirtiendo.</p>
-        <div class="bgt">
-          <div class="bgi"><span class="bl">Inversión 1 (Variable)</span><input type="text" id="cfg-inv1" class="inp" style="width:100%; max-width:180px; text-align:left;" onchange="updateSettings()"></div>
-          <div class="bgi"><span class="bl">Inversión 2 (Variable)</span><input type="text" id="cfg-inv2" class="inp" style="width:100%; max-width:180px; text-align:left;" onchange="updateSettings()"></div>
-          <div class="bgi"><span class="bl">Inversión 3 (Fija)</span><input type="text" id="cfg-inv3" class="inp" style="width:100%; max-width:180px; text-align:left;" onchange="updateSettings()"></div>
-          <div class="bgi"><span class="bl">Inversión 4 (Fija)</span><input type="text" id="cfg-inv4" class="inp" style="width:100%; max-width:180px; text-align:left;" onchange="updateSettings()"></div>
-        </div>
-      </div>
-      <div class="box">
-        <div class="box-t"><span>Configuración de Gastos</span></div>
-        <p style="font-size:12px; color:var(--muted); margin-bottom:15px">Renombra tus categorías de gastos fijos/variables.</p>
-        <div class="bgt">
-          <div class="bgi"><span class="bl">Categoría Gasto 1</span><input type="text" id="cfg-exp1" class="inp" style="width:100%; max-width:180px; text-align:left;" onchange="updateSettings()"></div>
-          <div class="bgi"><span class="bl">Categoría Gasto 2</span><input type="text" id="cfg-exp2" class="inp" style="width:100%; max-width:180px; text-align:left;" onchange="updateSettings()"></div>
-          <div class="bgi"><span class="bl">Categoría Gasto 3</span><input type="text" id="cfg-exp3" class="inp" style="width:100%; max-width:180px; text-align:left;" onchange="updateSettings()"></div>
         </div>
       </div>
     </div>
-  </div>
 
-</div>
+    <div id="panel-hapi" class="panel">
+      <div class="g2">
+        <div class="box">
+          <div class="box-t">
+            Seguimiento mensual · HAPI
+            <span class="saved" id="save-hapi">✓ guardado</span>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th class="r">Inicial</th>
+                <th class="r">Aporte</th>
+                <th class="r">Esperado</th>
+                <th class="r">Real (editar)</th>
+                <th class="r">Var.</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-hapi"></tbody>
+          </table>
+        </div>
+        <div class="box">
+          <div class="box-t">Esperado vs Real · HAPI</div>
+          <div class="ch"><canvas id="ch-hapi"></canvas></div>
+          <div class="note">
+            <strong>Plan 15 jun:</strong> Vender LCID, CRCL, ADM (urgente) → AAPL, MSFT, CAT, NEE, MET → QQQ gradual.<br>
+            Capital liberado ~$205 se redistribuye en <strong>RSP + NVDA + URTH</strong>.<br>
+            Objetivo: pasar de 32 a 18 posiciones.
+          </div>
+        </div>
+      </div>
+    </div>
 
-<script>
-// ──────────────────────────────────────────────────────────────
-// 1. CONFIGURACIÓN FIREBASE (Poné tus datos reales acá)
-// ──────────────────────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_AUTH_DOMAIN",
-  projectId: "TU_PROJECT_ID",
-  storageBucket: "TU_STORAGE_BUCKET",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
-};
+    <div id="panel-balanz" class="panel">
+      <div class="g2">
+        <div class="box">
+          <div class="box-t">
+            Seguimiento mensual · Balanz
+            <span class="saved" id="save-balanz">✓ guardado</span>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th class="r">Inicial</th>
+                <th class="r">Aporte</th>
+                <th class="r">Esperado</th>
+                <th class="r">Real (editar)</th>
+                <th class="r">Var.</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-balanz"></tbody>
+          </table>
+        </div>
+        <div class="box">
+          <div class="box-t">Esperado vs Real · Balanz</div>
+          <div class="ch"><canvas id="ch-balanz"></canvas></div>
+        </div>
+      </div>
+    </div>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-let currentUser = null; 
+    <div id="panel-fiducia" class="panel">
+      <div class="g2">
+        <div class="box">
+          <div class="box-t">Proyección 2026 · Fiducia (6% anual fijo)</div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th class="r">Inicial</th>
+                <th class="r">Interés</th>
+                <th class="r">Aporte</th>
+                <th class="r">Final proy.</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-fiducia"></tbody>
+          </table>
+        </div>
+        <div class="box">
+          <div class="box-t">Crecimiento proyectado · Fiducia</div>
+          <div class="ch"><canvas id="ch-fiducia"></canvas></div>
+          <div class="note" style="margin-top:14px">
+            Inversión de renta fija a <strong>6% anual</strong>. Aportes de $25/mes (excepto febrero). Proyección hasta diciembre 2026: <strong>$389.93 USD</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
 
-// ──────────────────────────────────────────────────────────────
-// 2. SISTEMA DE AUTENTICACIÓN
-// ──────────────────────────────────────────────────────────────
-auth.onAuthStateChanged(user => {
-  if (user) {
-    currentUser = user;
-    document.getElementById('auth-shell').style.display = 'none';
-    document.getElementById('app-shell').style.display = 'block';
-    document.getElementById('user-email-display').textContent = user.email;
-    initDashboard(); 
-  } else {
-    currentUser = null;
-    document.getElementById('auth-shell').style.display = 'flex';
-    document.getElementById('app-shell').style.display = 'none';
-  }
-});
+    <div id="panel-simplestate" class="panel">
+      <div class="g2">
+        <div class="box">
+          <div class="box-t">Proyección 2026 · Simplestate (10% anual fijo)</div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Mes</th>
+                <th class="r">Inicial</th>
+                <th class="r">Interés</th>
+                <th class="r">Aporte</th>
+                <th class="r">Final proy.</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-sstate"></tbody>
+          </table>
+        </div>
+        <div class="box">
+          <div class="box-t">Crecimiento proyectado · Simplestate</div>
+          <div class="ch"><canvas id="ch-sstate"></canvas></div>
+          <div class="note" style="margin-top:14px">
+            Inversión inmobiliaria a <strong>10% anual</strong>. Aporte inicial de $13 en enero. Capital compuesto automáticamente. Proyección dic: <strong>$286.89 USD</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
 
-function login() {
-  const e = document.getElementById('auth-email').value;
-  const p = document.getElementById('auth-password').value;
-  document.getElementById('auth-error').style.display = 'none';
-  auth.signInWithEmailAndPassword(e, p).catch(err => {
-    const el = document.getElementById('auth-error');
-    el.textContent = "Error: " + err.message; el.style.display = 'block';
-  });
-}
+    <div id="panel-presupuesto" class="panel">
+      <div class="g2">
+        <div class="box">
+          <div class="box-t">Gastos mensuales</div>
+          <div class="bgt">
+            <div class="bgi"><span class="bl">🏠 Alquiler</span><span class="bv">$120 USD</span></div>
+            <div class="bgi"><span class="bl">🍽️ Comida</span><span class="bv">$200 USD</span></div>
+            <div class="bgi"><span class="bl">📦 Otros gastos</span><span class="bv">$50 USD</span></div>
+            <div class="bgi"><span class="bl">📈 Inversión</span><span class="bv">$150 USD</span></div>
+            <div class="bgi total"><span style="font-weight:600">Total USD</span><span style="font-weight:700;color:var(--fiducia)">$520 USD</span></div>
+            <div class="bgi" style="background:none;padding:6px 12px 0"><span class="bl">Equivalente ARS</span><span class="bv" style="color:var(--muted)">$780,000</span></div>
+          </div>
+          <div class="note">
+            De los $150 USD de inversión mensual: $60 van a HAPI, $30 a Balanz, $25 a Fiducia, $13 a Simplestate, y ~$22 disponibles para ajustes o acumulación en cash.
+          </div>
+        </div>
+        <div class="box">
+          <div class="box-t">Distribución de gastos</div>
+          <div class="ch"><canvas id="ch-budget"></canvas></div>
+          <div style="margin-top:16px">
+            <div class="box-t">Inversión como % del gasto total</div>
+            <div style="background:var(--card2);border-radius:8px;overflow:hidden;height:12px;margin-bottom:6px">
+              <div style="background:var(--gain);height:100%;width:28.8%;border-radius:8px;"></div>
+            </div>
+            <div style="font-size:11px;color:var(--muted)">$150 de $520 = <span style="color:var(--gain);font-weight:600">28.8%</span> del presupuesto va a inversión</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-function register() {
-  const e = document.getElementById('auth-email').value;
-  const p = document.getElementById('auth-password').value;
-  document.getElementById('auth-error').style.display = 'none';
-  auth.createUserWithEmailAndPassword(e, p).catch(err => {
-    const el = document.getElementById('auth-error');
-    el.textContent = "Error al crear: " + err.message; el.style.display = 'block';
-  });
-}
+  </div></div>
 
-function logout() { auth.signOut(); }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// ──────────────────────────────────────────────────────────────
-// 3. BASES DE DATOS DE PROYECCIONES (CONSTANTES)
-// ──────────────────────────────────────────────────────────────
-const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-const HAPI_BASE = [{ inicial:500, interes:5.10, aporte:0, esperado:505.10 }, { inicial:510, interes:5.19, aporte:60, esperado:575.19 }, { inicial:579, interes:6.20, aporte:60, esperado:645.20 }, { inicial:620, interes:7.80, aporte:60, esperado:687.80 }, { inicial:780, interes:7.87, aporte:60, esperado:847.87 }, { inicial:847, interes:8.55, aporte:60, esperado:915.55 }, { inicial:915, interes:9.24, aporte:60, esperado:984.24 }, { inicial:984, interes:9.93, aporte:60, esperado:1053.93 }, { inicial:1053, interes:10.63, aporte:60, esperado:1123.63 }, { inicial:1123, interes:11.34, aporte:60, esperado:1194.34 }, { inicial:1194, interes:12.05, aporte:60, esperado:1266.05 }, { inicial:1266, interes:12.78, aporte:60, esperado:1338.78 }];
-const BALANZ_BASE = [{ inicial:85, interes:1.05, aporte:48, esperado:134.05 }, { inicial:138, interes:1.05, aporte:33, esperado:172.05 }, { inicial:170, interes:1.05, aporte:30, esperado:201.05 }, { inicial:239, interes:1.05, aporte:30, esperado:270.05 }, { inicial:425, interes:1.05, aporte:30, esperado:456.05 }, { inicial:456, interes:1.05, aporte:30, esperado:487.05 }, { inicial:487, interes:1.05, aporte:30, esperado:518.05 }, { inicial:518, interes:1.05, aporte:30, esperado:549.05 }, { inicial:549, interes:1.05, aporte:30, esperado:580.05 }, { inicial:580, interes:1.05, aporte:30, esperado:611.05 }, { inicial:611, interes:1.05, aporte:30, esperado:642.05 }, { inicial:642, interes:1.05, aporte:30, esperado:673.05 }];
-const FIDUCIA = [{ inicial:175.00, interes:0.583, aporte:25, final:200.58 },{ inicial:200.58, interes:0.669, aporte:0, final:201.25 },{ inicial:201.25, interes:0.671, aporte:25, final:226.92 },{ inicial:226.92, interes:0.756, aporte:25, final:252.68 },{ inicial:207.00, interes:0.690, aporte:25, final:232.69 },{ inicial:232.69, interes:0.776, aporte:25, final:258.47 },{ inicial:258.47, interes:0.862, aporte:25, final:284.33 },{ inicial:284.33, interes:0.948, aporte:25, final:310.28 },{ inicial:310.28, interes:1.034, aporte:25, final:336.31 },{ inicial:336.31, interes:1.121, aporte:25, final:362.43 },{ inicial:362.43, interes:1.208, aporte:25, final:388.64 },{ inicial:388.64, interes:1.295, aporte:25, final:414.93 }];
-const SSTATE = [{ inicial:246.80, interes:2.057, aporte:13, final:261.86 },{ inicial:261.86, interes:2.182, aporte:0, final:264.04 },{ inicial:264.04, interes:2.200, aporte:0, final:266.24 },{ inicial:266.24, interes:2.219, aporte:0, final:268.46 },{ inicial:268.46, interes:2.237, aporte:0, final:270.70 },{ inicial:270.70, interes:2.256, aporte:0, final:272.95 },{ inicial:272.95, interes:2.275, aporte:0, final:275.23 },{ inicial:275.23, interes:2.294, aporte:0, final:277.52 },{ inicial:277.52, interes:2.313, aporte:0, final:279.83 },{ inicial:279.83, interes:2.332, aporte:0, final:282.16 },{ inicial:282.16, interes:2.351, aporte:0, final:284.51 },{ inicial:284.51, interes:2.376, aporte:0, final:286.89 }];
-
-// ──────────────────────────────────────────────────────────────
-// 4. DATOS DINÁMICOS DEL USUARIO
-// ──────────────────────────────────────────────────────────────
-let hapiReal   = Array(12).fill(null);
-let balanzReal = Array(12).fill(null);
-let bgt = { cotizacion: 1300, ingreso: 1000, alquiler: 120, comida: 200, otros: 50 };
-let labels = {
-  inv1: "HAPI", inv2: "Balanz", inv3: "Fondo Fiducia", inv4: "Simplestate",
-  exp1: "🏠 Alquiler", exp2: "🍽️ Comida", exp3: "📦 Otros gastos"
-};
-const firebaseConfig = {
-    apiKey: "AIzaSyBNKI7UZ6ALDOFKkDckrH2eoiSuhd98sK4",
-    authDomain: "dashboard-inversiones-362cb.firebaseapp.com",
-    projectId: "dashboard-inversiones-362cb",
-    storageBucket: "dashboard-inversiones-362cb.firebasestorage.app",
-    messagingSenderId: "123978189976",
-    appId: "1:123978189976:web:4a839a907529aa183ad4ed",
-    measurementId: "G-9B0XF5HGP5"
+  const firebaseConfig = {
+      apiKey: "AIzaSyBNKI7UZ6ALDOFKkDckrH2eoiSuhd98sK4",
+      authDomain: "dashboard-inversiones-362cb.firebaseapp.com",
+      projectId: "dashboard-inversiones-362cb",
+      storageBucket: "dashboard-inversiones-362cb.firebasestorage.app",
+      messagingSenderId: "123978189976",
+      appId: "1:123978189976:web:4a839a907529aa183ad4ed",
+      measurementId: "G-9B0XF5HGP5"
   };
-async function loadFromCloud() {
-  if (!currentUser) return;
-  try {
-    const doc = await db.collection("usuarios").doc(currentUser.uid).get();
-    if (doc.exists) {
-      const data = doc.data();
-      if(data.hapiReal) hapiReal = data.hapiReal;
-      if(data.balanzReal) balanzReal = data.balanzReal;
-      if(data.bgt) bgt = data.bgt;
-      if(data.labels) labels = data.labels;
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const loginScreen = document.getElementById('login-screen');
+  const dashboardScreen = document.getElementById('dashboard-screen');
+  const errorEl = document.getElementById('login-error');
+
+  // Monitorear estado de login
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loginScreen.style.display = 'none';
+      dashboardScreen.style.display = 'block';
+      if (window.initDashboard) {
+        window.initDashboard();
+      }
     } else {
-      await saveToCloud(); // Crea los datos por defecto para un usuario nuevo
+      loginScreen.style.display = 'flex';
+      dashboardScreen.style.display = 'none';
     }
-  } catch(e) { console.error("Error cargando nube:", e); }
-}
-
-async function saveToCloud() {
-  if (!currentUser) return;
-  try {
-    await db.collection("usuarios").doc(currentUser.uid).set({ hapiReal, balanzReal, bgt, labels });
-  } catch(e) { console.error("Error guardando:", e); }
-}
-
-// ──────────────────────────────────────────────────────────────
-// 5. FUNCIONES DE INTERFAZ & LÓGICA
-// ──────────────────────────────────────────────────────────────
-const f2 = n => n == null ? '—' : '$' + n.toFixed(2);
-const fS = n => n == null ? '—' : '$' + n.toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
-const fARS = n => n == null ? '—' : '$' + Math.round(n).toLocaleString('es-AR') + ' ARS';
-
-function varBadge(real, esp) {
-  if (real == null) return '<span class="mu">—</span>';
-  const p = ((real / esp) - 1) * 100;
-  return `<span class="${p>=0?'g':'l'}">${p>=0?'+':''}${p.toFixed(1)}%</span>`;
-}
-function lastReal(arr, base) { let v = null; arr.forEach(x => { if (x != null) v = x; }); return v ?? base[0].inicial; }
-function currentMonthVal(data) { return data[Math.min(new Date().getMonth(), 11)].final; }
-
-function showTab(name) {
-  ['overview','hapi','balanz','fiducia','simplestate','presupuesto','ajustes'].forEach(p => {
-    document.getElementById('panel-'+p).classList.toggle('on', p===name);
-    document.getElementById('tab-'+p).classList.toggle('on', p===name);
   });
-}
-function goTab(name) { showTab(name); }
-function flash(id) { const e = document.getElementById(id); if(e){ e.classList.add('on'); setTimeout(()=>e.classList.remove('on'), 2200); } }
 
-function updateCards() {
-  const h = lastReal(hapiReal, HAPI_BASE), b = lastReal(balanzReal, BALANZ_BASE);
-  const f = currentMonthVal(FIDUCIA), s = currentMonthVal(SSTATE);
-  document.getElementById('card-hapi').textContent = fS(h);
-  document.getElementById('card-balanz').textContent = fS(b);
-  document.getElementById('card-fiducia').textContent = fS(f);
-  document.getElementById('card-sstate').textContent = fS(s);
-  document.getElementById('total-val').textContent = fS(h+b+f+s) + ' USD';
-}
+  // Procesar Formulario de Login
+  document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    errorEl.textContent = 'Verificando...';
 
-function applyLabels() {
-  // Inputs de Configuración
-  document.getElementById('cfg-inv1').value = labels.inv1;
-  document.getElementById('cfg-inv2').value = labels.inv2;
-  document.getElementById('cfg-inv3').value = labels.inv3;
-  document.getElementById('cfg-inv4').value = labels.inv4;
-  document.getElementById('cfg-exp1').value = labels.exp1;
-  document.getElementById('cfg-exp2').value = labels.exp2;
-  document.getElementById('cfg-exp3').value = labels.exp3;
-
-  // Inyectar en todo el HTML
-  document.querySelectorAll('.txt-inv1').forEach(el => el.textContent = labels.inv1);
-  document.querySelectorAll('.txt-inv2').forEach(el => el.textContent = labels.inv2);
-  document.querySelectorAll('.txt-inv3').forEach(el => el.textContent = labels.inv3);
-  document.querySelectorAll('.txt-inv4').forEach(el => el.textContent = labels.inv4);
-  document.querySelectorAll('.txt-exp1').forEach(el => el.textContent = labels.exp1);
-  document.querySelectorAll('.txt-exp2').forEach(el => el.textContent = labels.exp2);
-  document.querySelectorAll('.txt-exp3').forEach(el => el.textContent = labels.exp3);
-}
-
-async function updateSettings() {
-  labels.inv1 = document.getElementById('cfg-inv1').value || 'Inversión 1';
-  labels.inv2 = document.getElementById('cfg-inv2').value || 'Inversión 2';
-  labels.inv3 = document.getElementById('cfg-inv3').value || 'Inversión 3';
-  labels.inv4 = document.getElementById('cfg-inv4').value || 'Inversión 4';
-  labels.exp1 = document.getElementById('cfg-exp1').value || 'Gasto 1';
-  labels.exp2 = document.getElementById('cfg-exp2').value || 'Gasto 2';
-  labels.exp3 = document.getElementById('cfg-exp3').value || 'Gasto 3';
-
-  applyLabels();
-  updateCharts();
-  await saveToCloud();
-  flash('save-ajustes');
-}
-
-async function updateBudget() {
-  bgt.cotizacion = parseFloat(document.getElementById('inp-cotizacion').value) || 0;
-  bgt.ingreso = parseFloat(document.getElementById('inp-ingreso').value) || 0;
-  bgt.alquiler = parseFloat(document.getElementById('inp-alquiler').value) || 0;
-  bgt.comida = parseFloat(document.getElementById('inp-comida').value) || 0;
-  bgt.otros = parseFloat(document.getElementById('inp-otros').value) || 0;
-
-  const totalInv = 115, tc = bgt.cotizacion; // Aportes fijos por defecto (se podría hacer editable luego)
-  const gastos = bgt.alquiler + bgt.comida + bgt.otros;
-  const libre = bgt.ingreso - totalInv - gastos;
-
-  document.getElementById('bgt-aportes').innerHTML = `-$${totalInv} USD <span class="mu">(${fARS(totalInv*tc)})</span>`;
-  document.getElementById('bgt-gastos').innerHTML = `-$${gastos} USD <span class="mu">(${fARS(gastos*tc)})</span>`;
-  
-  const re = document.getElementById('bgt-restante');
-  re.innerHTML = `$${libre.toFixed(2)} USD <span style="font-size:12px;font-weight:normal" class="mu">(${fARS(libre*tc)})</span>`;
-  re.style.color = libre >= 0 ? 'var(--gain)' : 'var(--loss)';
-
-  await saveToCloud();
-  flash('save-budget');
-  updateCharts();
-}
-
-function renderInputs() {
-  document.getElementById('inp-cotizacion').value = bgt.cotizacion;
-  document.getElementById('inp-ingreso').value = bgt.ingreso;
-  document.getElementById('inp-alquiler').value = bgt.alquiler;
-  document.getElementById('inp-comida').value = bgt.comida;
-  document.getElementById('inp-otros').value = bgt.otros;
-
-  const renderTbl = (id, base, real, fn) => {
-    document.getElementById(id).innerHTML = base.map((r,i) => `<tr>
-      <td><span class="ml">${MESES[i]}</span></td><td class="r mu">${f2(r.inicial)}</td>
-      <td class="r mu">${r.aporte>0?'+$'+r.aporte:'—'}</td><td class="r">${f2(r.esperado)}</td>
-      <td class="r"><input class="inp${real[i]!=null?' filled':''}" type="number" step="0.01" value="${real[i]!=null?real[i]:''}" onchange="${fn}(${i},this)"></td>
-      <td class="r">${varBadge(real[i], r.esperado)}</td></tr>`).join('');
-  };
-  renderTbl('tbody-hapi', HAPI_BASE, hapiReal, 'onHapi');
-  renderTbl('tbody-balanz', BALANZ_BASE, balanzReal, 'onBalanz');
-
-  const renderFijo = (id, base, c) => {
-    document.getElementById(id).innerHTML = base.map((r,i) => `<tr>
-      <td><span class="ml">${MESES[i]}</span></td><td class="r mu">${f2(r.inicial)}</td>
-      <td class="r" style="color:var(${c})">${f2(r.interes)}</td><td class="r mu">${r.aporte>0?'+$'+r.aporte:'—'}</td>
-      <td class="r">${f2(r.final)}</td></tr>`).join('');
-  };
-  renderFijo('tbody-fiducia', FIDUCIA, '--fiducia');
-  renderFijo('tbody-sstate', SSTATE, '--sstate');
-}
-
-async function onHapi(i, input) { hapiReal[i] = input.value===''?null:parseFloat(input.value); await saveToCloud(); flash('save-hapi'); updateCards(); updateCharts(); renderInputs(); }
-async function onBalanz(i, input) { balanzReal[i] = input.value===''?null:parseFloat(input.value); await saveToCloud(); flash('save-balanz'); updateCards(); updateCharts(); renderInputs(); }
-
-// ──────────────────────────────────────────────────────────────
-// 6. GRÁFICOS (CHART.JS)
-// ──────────────────────────────────────────────────────────────
-const pool = {}, C = { hapi:'#3B82F6', b:'#10B981', f:'#F59E0B', s:'#8B5CF6', text:'#4E6880' };
-function mkC(id, type, data, options) { if(pool[id]) pool[id].destroy(); pool[id] = new Chart(document.getElementById(id), {type, data, options}); }
-
-function updateCharts() {
-  const hLine = MESES.map((_,i) => hapiReal[i] ?? HAPI_BASE[i].esperado);
-  const bLine = MESES.map((_,i) => balanzReal[i] ?? BALANZ_BASE[i].esperado);
-  const dsLine = (l,d,c) => ({ label:l, data:d, borderColor:c, borderWidth:2, pointBackgroundColor:c, tension:0.3, spanGaps:true });
-
-  const opt = { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{color:C.text},grid:{color:'#162840'}},y:{ticks:{color:C.text},grid:{color:'#162840'}}} };
-  
-  mkC('ch-overview', 'line', { labels:MESES, datasets:[ dsLine(labels.inv1,hLine,C.hapi), dsLine(labels.inv2,bLine,C.b), dsLine(labels.inv3,FIDUCIA.map(r=>r.final),C.f), dsLine(labels.inv4,SSTATE.map(r=>r.final),C.s)] }, opt);
-  
-  mkC('ch-hapi', 'line', { labels:MESES, datasets:[{...dsLine('Esp',HAPI_BASE.map(r=>r.esperado),C.hapi+'80'), borderDash:[5,5]}, dsLine('Real',hapiReal,C.hapi)] }, opt);
-  mkC('ch-balanz', 'line', { labels:MESES, datasets:[{...dsLine('Esp',BALANZ_BASE.map(r=>r.esperado),C.b+'80'), borderDash:[5,5]}, dsLine('Real',balanzReal,C.b)] }, opt);
-
-  const h = lastReal(hapiReal,HAPI_BASE), b = lastReal(balanzReal,BALANZ_BASE), f = currentMonthVal(FIDUCIA), s = currentMonthVal(SSTATE);
-  mkC('ch-pie', 'doughnut', { labels:[labels.inv1, labels.inv2, labels.inv3, labels.inv4], datasets:[{data:[h,b,f,s], backgroundColor:[C.hapi,C.b,C.f,C.s], borderWidth:2, borderColor:'#06101E'}] }, {responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{legend:{position:'right',labels:{color:C.text}}}});
-  mkC('ch-budget', 'doughnut', { labels:[labels.exp1, labels.exp2, labels.exp3, 'Inversión'], datasets:[{data:[bgt.alquiler, bgt.comida, bgt.otros, 115], backgroundColor:[C.hapi,C.b,C.f,C.s], borderWidth:2, borderColor:'#06101E'}] }, {responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{legend:{position:'right',labels:{color:C.text}}}});
-}
-
-// ──────────────────────────────────────────────────────────────
-// INICIO (Llamado tras loguearse)
-// ──────────────────────────────────────────────────────────────
-async function initDashboard() {
-  await loadFromCloud();
-  applyLabels();
-  renderInputs();
-  updateBudget();
-  updateCards();
-  updateCharts();
-}
-</script>
-</body>
-</html>
+    signInWithEmailAndPassword(auth, email, pass)
+      .catch(error => {
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user

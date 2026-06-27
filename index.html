@@ -1,473 +1,152 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inversiones 2026 · Patricio Tadeo</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<style>
-:root {
-  --bg: #06101E;
-  --card: #0C1A2E;
-  --card2: #0F2040;
-  --border: #162840;
-  --text: #DDE6F0;
-  --muted: #4E6880;
-  --hapi: #3B82F6;
-  --balanz: #10B981;
-  --fiducia: #F59E0B;
-  --sstate: #8B5CF6;
-  --gain: #22C55E;
-  --loss: #F43F5E;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; min-height:100vh; }
-.shell { max-width:1280px; margin:0 auto; padding:24px 16px 48px; }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    sendPasswordResetEmail, 
+    onAuthStateChanged, 
+    signOut 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-/* Login Screen Styles */
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: var(--bg);
-  padding: 16px;
-}
-.login-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 32px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 390px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-.login-box h2 {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  text-align: center;
-  letter-spacing: -0.02em;
-}
-.login-box p {
-  color: var(--muted);
-  font-size: 13px;
-  text-align: center;
-  margin-bottom: 24px;
-}
-.form-panel {
-  display: none;
-}
-.form-panel.active {
-  display: block;
-}
-.form-group {
-  margin-bottom: 18px;
-}
-.form-group label {
-  display: block;
-  font-size: 10px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-.form-group input {
-  width: 100%;
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 11px 14px;
-  color: var(--text);
-  font-size: 14px;
-  outline: none;
-  transition: border-color .15s;
-}
-.form-group input:focus {
-  border-color: var(--hapi);
-}
-.btn-login {
-  width: 100%;
-  background: var(--hapi);
-  color: #fff;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background .15s;
-}
-.btn-login:hover {
-  background: #2563EB;
-}
-.auth-links {
-  margin-top: 18px;
-  text-align: center;
-  font-size: 12px;
-}
-.auth-links a {
-  color: var(--hapi);
-  text-decoration: none;
-  cursor: pointer;
-  display: inline-block;
-  margin: 4px 8px;
-}
-.auth-links a:hover {
-  text-decoration: underline;
-}
-.login-error {
-  color: var(--loss);
-  font-size: 12px;
-  margin-top: 14px;
-  text-align: center;
-  min-height: 18px;
-  font-weight: 500;
-}
-.login-success {
-  color: var(--gain);
-  font-size: 12px;
-  margin-top: 14px;
-  text-align: center;
-  min-height: 18px;
-  font-weight: 500;
-}
+  const firebaseConfig = {
+      apiKey: "AIzaSyBNKI7UZ6ALDOFKkDckrH2eoiSuhd98sK4",
+      authDomain: "dashboard-inversiones-362cb.firebaseapp.com",
+      projectId: "dashboard-inversiones-362cb",
+      storageBucket: "dashboard-inversiones-362cb.firebasestorage.app",
+      messagingSenderId: "123978189976",
+      appId: "1:123978189976:web:4a839a907529aa183ad4ed",
+      measurementId: "G-9B0XF5HGP5"
+  };
 
-/* Header */
-.hdr { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
-.hdr-left h1 { font-size:18px; font-weight:600; letter-spacing:-.01em; }
-.hdr-left p  { font-size:12px; color:var(--muted); margin-top:3px; }
-.hdr-right   { text-align:right; }
-.hdr-right .lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
-.hdr-right .val { font-size:30px; font-weight:700; color:var(--gain); letter-spacing:-.02em; line-height:1; margin-top:2px; }
+  const errorEl = document.getElementById('auth-error');
+  const successEl = document.getElementById('auth-success');
+  const loginScreen = document.getElementById('login-screen');
+  const dashboardScreen = document.getElementById('dashboard-screen');
 
-/* Cards row */
-.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-bottom:20px; }
-.card {
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px 18px;
-  border-left:3px solid var(--c);
-  cursor:pointer;
-  transition:background .15s;
-}
-.card:hover { background:var(--card2); }
-.card .c-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
-.card .c-val { font-size:26px; font-weight:700; color:var(--c); letter-spacing:-.02em; }
-.card .c-sub { font-size:11px; color:var(--muted); margin-top:5px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.pill { display:inline-flex; align-items:center; font-size:10px; font-weight:600; padding:2px 7px; border-radius:20px; }
-.pill.up   { background:rgba(34,197,94,.12); color:#22C55E; }
-.pill.down { background:rgba(244,63,94,.12);  color:#F43F5E; }
-.pill.neu  { background:rgba(78,104,128,.15); color:var(--muted); }
+  let auth;
 
-/* Tabs */
-.tabs { display:flex; gap:2px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:4px; margin-bottom:18px; overflow-x:auto; width:fit-content; }
-.tab { padding:7px 16px; border-radius:7px; border:none; background:none; color:var(--muted); cursor:pointer; font-size:12px; font-weight:500; white-space:nowrap; transition:all .15s; }
-.tab.on { background:var(--card2); color:var(--text); }
+  // Encapsulamos en un try/catch para que si falla la conexión de red/adblocker avise en pantalla
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
 
-/* Panels */
-.panel { display:none; }
-.panel.on { display:block; }
+    // Escuchar cambios de estado en la cuenta
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginScreen.style.display = 'none';
+        dashboardScreen.style.display = 'block';
+        if (window.initDashboard) window.initDashboard();
+      } else {
+        loginScreen.style.display = 'flex';
+        dashboardScreen.style.display = 'none';
+      }
+    });
 
-/* Grid layouts */
-.g2  { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
-.g1  { margin-bottom:14px; }
-@media(max-width:720px){ .g2 { grid-template-columns:1fr; } }
+  } catch (initializationError) {
+    console.error(initializationError);
+    errorEl.textContent = "Error crítico: El bloqueador de anuncios o tu navegador están bloqueando a Firebase.";
+  }
 
-/* Box */
-.box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px; }
-.box-t { font-size:10px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
-.saved { font-size:10px; color:var(--gain); opacity:0; transition:opacity .3s; }
-.saved.on { opacity:1; }
-
-/* Charts */
-.ch { position:relative; height:210px; }
-.ch-lg { position:relative; height:280px; }
-
-/* Table */
-.tbl { width:100%; border-collapse:collapse; font-size:12.5px; }
-.tbl th { padding:7px 10px; color:var(--muted); font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
-.tbl td { padding:8px 10px; border-bottom:1px solid rgba(22,40,64,.7); font-variant-numeric:tabular-nums; white-space:nowrap; }
-.tbl tr:last-child td { border-bottom:none; }
-.tbl tr:hover td { background:rgba(255,255,255,.015); }
-.tbl .r  { text-align:right; }
-.tbl .mu { color:var(--muted); }
-.tbl .g  { color:var(--gain); }
-.tbl .l  { color:var(--loss); }
-
-/* Editable input */
-.inp {
-  background:var(--card2); border:1px solid var(--border); border-radius:6px;
-  color:var(--text); padding:4px 8px; width:88px; font-size:12px; text-align:right;
-  outline:none; transition:border-color .15s;
-}
-.inp:focus { border-color:var(--hapi); }
-.inp.filled { border-color:rgba(59,130,246,.3); }
-
-/* Month label */
-.ml { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:.05em; }
-
-/* Budget items */
-.bgt { display:flex; flex-direction:column; gap:8px; }
-.bgi { display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--card2); border-radius:8px; font-size:13px; }
-.bgi .bl { color:var(--muted); font-size:12px; }
-.bgi .bv { font-weight:600; }
-.bgi.total { background:none; border-top:1px solid var(--border); border-radius:0; padding-top:13px; margin-top:2px; }
-
-/* Note box */
-.note { background:rgba(59,130,246,.07); border:1px solid rgba(59,130,246,.2); border-radius:10px; padding:13px 15px; font-size:12px; color:var(--muted); line-height:1.6; margin-top:14px; }
-.note strong { color:var(--text); }
-
-/* Dot legend */
-.dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
-.legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }
-.leg-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--muted); }
-</style>
-</head>
-<body>
-
-<div id="login-screen" class="login-container">
-  <div class="login-box">
-    <h2 id="auth-box-title">📊 Inversiones 2026</h2>
-    <p id="auth-box-subtitle">Ingresa tus credenciales para acceder</p>
+  // Control global para el intercambio visual de paneles internos
+  window.switchAuthPanel = function(panelName) {
+    errorEl.textContent = '';
+    successEl.textContent = '';
     
-    <div id="panel-login-form" class="form-panel active">
-      <form id="login-form">
-        <div class="form-group">
-          <label>Correo electrónico</label>
-          <input type="email" id="login-email" placeholder="tu@email.com" required>
-        </div>
-        <div class="form-group">
-          <label>Contraseña</label>
-          <input type="password" id="login-password" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn-login">Ingresar</button>
-      </form>
-      <div class="auth-links">
-        <a onclick="switchAuthPanel('register')">Crear una cuenta</a> • 
-        <a onclick="switchAuthPanel('reset')">¿Olvidaste tu contraseña?</a>
-      </div>
-    </div>
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    
+    const title = document.getElementById('auth-box-title');
+    const subtitle = document.getElementById('auth-box-subtitle');
+    
+    if(panelName === 'login') {
+      document.getElementById('panel-login-form').classList.add('active');
+      title.textContent = "📊 Inversiones 2026";
+      subtitle.textContent = "Ingresa tus credenciales para acceder";
+    } else if(panelName === 'register') {
+      document.getElementById('panel-register-form').classList.add('active');
+      title.textContent = "🔑 Registrarse";
+      subtitle.textContent = "Crea una nueva cuenta de acceso";
+    } else if(panelName === 'reset') {
+      document.getElementById('panel-reset-form').classList.add('active');
+      title.textContent = "🔄 Recuperación";
+      subtitle.textContent = "Restablece tu contraseña por correo";
+    }
+  }
 
-    <div id="panel-register-form" class="form-panel">
-      <form id="register-form">
-        <div class="form-group">
-          <label>Correo electrónico</label>
-          <input type="email" id="register-email" placeholder="ejemplo@correo.com" required>
-        </div>
-        <div class="form-group">
-          <label>Contraseña (mínimo 6 caracteres)</label>
-          <input type="password" id="register-password" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn-login" style="background:var(--balanz);">Registrarse</button>
-      </form>
-      <div class="auth-links">
-        <a onclick="switchAuthPanel('login')">¿Ya tienes cuenta? Inicia sesión</a>
-      </div>
-    </div>
+  // 1. LOGIN
+  document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!auth) return;
+    errorEl.textContent = '';
+    successEl.textContent = 'Verificando...';
+    
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
 
-    <div id="panel-reset-form" class="form-panel">
-      <form id="reset-form">
-        <div class="form-group">
-          <label>Correo electrónico de recuperación</label>
-          <input type="email" id="reset-email" placeholder="tu@email.com" required>
-        </div>
-        <button type="submit" class="btn-login" style="background:var(--fiducia); color:#000;">Enviar enlace de recuperación</button>
-      </form>
-      <div class="auth-links">
-        <a onclick="switchAuthPanel('login')">Volver al inicio de sesión</a>
-      </div>
-    </div>
+    signInWithEmailAndPassword(auth, email, pass)
+      .then(() => successEl.textContent = '')
+      .catch(error => {
+        successEl.textContent = '';
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          errorEl.textContent = 'Correo o contraseña incorrectos.';
+        } else {
+          errorEl.textContent = 'Error: ' + error.message;
+        }
+      });
+  });
 
-    <div id="auth-error" class="login-error"></div>
-    <div id="auth-success" class="login-success"></div>
-  </div>
-</div>
+  // 2. CREAR CUENTA
+  document.getElementById('register-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!auth) return;
+    errorEl.textContent = '';
+    successEl.textContent = 'Creando cuenta...';
 
-<div id="dashboard-screen" style="display:none;">
-  <div class="shell">
+    const email = document.getElementById('register-email').value;
+    const pass = document.getElementById('register-password').value;
 
-    <div class="hdr">
-      <div class="hdr-left">
-        <h1>📊 Dashboard de Inversiones</h1>
-        <p>2026 · Patricio Tadeo · Actualizado en tiempo real</p>
-        <button onclick="logoutUser()" style="background:var(--card2); border:1px solid var(--border); color:var(--text); padding:4px 10px; border-radius:6px; font-size:11px; cursor:pointer; margin-top:8px; transition:background 0.15s;">🔒 Cerrar sesión</button>
-      </div>
-      <div class="hdr-right">
-        <div class="lbl">Portafolio total</div>
-        <div class="val" id="total-val">—</div>
-      </div>
-    </div>
+    createUserWithEmailAndPassword(auth, email, pass)
+      .then(() => {
+        successEl.textContent = '¡Cuenta creada con éxito! Accediendo...';
+      })
+      .catch(error => {
+        successEl.textContent = '';
+        if (error.code === 'auth/email-already-in-use') {
+          errorEl.textContent = 'Este correo electrónico ya está registrado.';
+        } else if (error.code === 'auth/weak-password') {
+          errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        } else {
+          errorEl.textContent = 'Error: ' + error.message;
+        }
+      });
+  });
 
-    <div class="cards">
-      <div class="card" style="--c:var(--hapi)" onclick="goTab('hapi')">
-        <div class="c-lbl">HAPI · Acciones Ext.</div>
-        <div class="c-val" id="card-hapi">—</div>
-        <div class="c-sub">
-          <span>Meta dic: $1,260</span>
-          <span class="pill neu" id="pill-hapi">12% ref.</span>
-        </div>
-      </div>
-      <div class="card" style="--c:var(--balanz)" onclick="goTab('balanz')">
-        <div class="c-lbl">Balanz · Acciones Arg.</div>
-        <div class="c-val" id="card-balanz">—</div>
-        <div class="c-sub">
-          <span>Meta dic: $673</span>
-          <span class="pill neu" id="pill-balanz">15% ref.</span>
-        </div>
-      </div>
-      <div class="card" style="--c:var(--fiducia)" onclick="goTab('fiducia')">
-        <div class="c-lbl">Fondo Fiducia</div>
-        <div class="c-val" id="card-fiducia">—</div>
-        <div class="c-sub">
-          <span>Meta dic: $389.93</span>
-          <span class="pill up">6% anual fijo</span>
-        </div>
-      </div>
-      <div class="card" style="--c:var(--sstate)" onclick="goTab('simplestate')">
-        <div class="c-lbl">Simplestate</div>
-        <div class="c-val" id="card-sstate">—</div>
-        <div class="c-sub">
-          <span>Meta dic: $286.89</span>
-          <span class="pill up">10% anual fijo</span>
-        </div>
-      </div>
-    </div>
+  // 3. RECUPERAR CONTRASEÑA
+  document.getElementById('reset-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!auth) return;
+    errorEl.textContent = '';
+    successEl.textContent = 'Enviando enlace...';
 
-    <div class="tabs">
-      <button class="tab on" id="tab-overview"    onclick="showTab('overview')">Vista General</button>
-      <button class="tab"    id="tab-hapi"         onclick="showTab('hapi')">HAPI</button>
-      <button class="tab"    id="tab-balanz"        onclick="showTab('balanz')">Balanz</button>
-      <button class="tab"    id="tab-fiducia"       onclick="showTab('fiducia')">Fiducia</button>
-      <button class="tab"    id="tab-simplestate"   onclick="showTab('simplestate')">Simplestate</button>
-      <button class="tab"    id="tab-presupuesto"   onclick="showTab('presupuesto')">Presupuesto</button>
-    </div>
+    const email = document.getElementById('reset-email').value;
 
-    <div id="panel-overview" class="panel on">
-      <div class="g1 box">
-        <div class="box-t">Evolución mensual — todos los portafolios</div>
-        <div class="ch-lg"><canvas id="ch-overview"></canvas></div>
-        <div class="legend">
-          <div class="leg-item"><span class="dot" style="background:var(--hapi)"></span>HAPI</div>
-          <div class="leg-item"><span class="dot" style="background:var(--balanz)"></span>Balanz</div>
-          <div class="leg-item"><span class="dot" style="background:var(--fiducia)"></span>Fiducia</div>
-          <div class="leg-item"><span class="dot" style="background:var(--sstate)"></span>Simplestate</div>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="box">
-          <div class="box-t">Distribución actual del portafolio</div>
-          <div class="ch"><canvas id="ch-pie"></canvas></div>
-        </div>
-        <div class="box">
-          <div class="box-t">Aportes y tasas</div>
-          <table class="tbl">
-            <thead><tr><th>Portafolio</th><th>Aporte/mes</th><th>Tasa ref.</th><th>Tipo</th></tr></thead>
-            <tbody>
-              <tr>
-                <td style="color:var(--hapi);font-weight:500">HAPI</td>
-                <td class="r">$60</td>
-                <td class="r" style="color:var(--hapi)">12%</td>
-                <td class="mu">Mercado</td>
-              </tr>
-              <tr>
-                <td style="color:var(--balanz);font-weight:500">Balanz</td>
-                <td class="r">$30</td>
-                <td class="r" style="color:var(--balanz)">15%</td>
-                <td class="mu">Mercado</td>
-              </tr>
-              <tr>
-                <td style="color:var(--fiducia);font-weight:500">Fiducia</td>
-                <td class="r">$25</td>
-                <td class="r" style="color:var(--fiducia)">6%</td>
-                <td class="mu">Fijo</td>
-              </tr>
-              <tr>
-                <td style="color:var(--sstate);font-weight:500">Simplestate</td>
-                <td class="r">$0</td>
-                <td class="r" style="color:var(--sstate)">10%</td>
-                <td class="mu">Fijo</td>
-              </tr>
-              <tr style="font-weight:600;border-top:1px solid var(--border)">
-                <td>Total</td>
-                <td class="r">$115</td>
-                <td class="r mu">—</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="note" style="margin-top:14px">
-            <strong>Próxima acción:</strong> Venta de posiciones en HAPI el <strong>15 de junio</strong>. Capital a liberar: ~$205 USD. ETF núcleo objetivo: <strong>RSP</strong> (S&P 500 Equal Weight).
-          </div>
-        </div>
-      </div>
-    </div>
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        successEl.textContent = 'Enlace enviado. Revisa tu casilla de correo.';
+        document.getElementById('reset-email').value = '';
+      })
+      .catch(error => {
+        successEl.textContent = '';
+        if (error.code === 'auth/user-not-found') {
+          errorEl.textContent = 'No se encontró ningún usuario con este correo electrónico.';
+        } else {
+          errorEl.textContent = 'Error: ' + error.message;
+        }
+      });
+  });
 
-    <div id="panel-hapi" class="panel">
-      <div class="g2">
-        <div class="box">
-          <div class="box-t">
-            Seguimiento mensual · HAPI
-            <span class="saved" id="save-hapi">✓ guardado</span>
-          </div>
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Mes</th>
-                <th class="r">Inicial</th>
-                <th class="r">Aporte</th>
-                <th class="r">Esperado</th>
-                <th class="r">Real (editar)</th>
-                <th class="r">Var.</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-hapi"></tbody>
-          </table>
-        </div>
-        <div class="box">
-          <div class="box-t">Esperado vs Real · HAPI</div>
-          <div class="ch"><canvas id="ch-hapi"></canvas></div>
-          <div class="note">
-            <strong>Plan 15 jun:</strong> Vender LCID, CRCL, ADM (urgente) → AAPL, MSFT, CAT, NEE, MET → QQQ gradual.<br>
-            Capital liberado ~$205 se redistribuye en <strong>RSP + NVDA + URTH</strong>.<br>
-            Objetivo: pasar de 32 a 18 posiciones.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="panel-balanz" class="panel">
-      <div class="g2">
-        <div class="box">
-          <div class="box-t">
-            Seguimiento mensual · Balanz
-            <span class="saved" id="save-balanz">✓ guardado</span>
-          </div>
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>Mes</th>
-                <th class="r">Inicial</th>
-                <th class="r">Aporte</th>
-                <th class="r">Esperado</th>
-                <th class="r">Real (editar)</th>
-                <th class="r">Var.</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-balanz"></tbody>
-          </table>
-        </div>
-        <div class="box">
-          <div class="box-t">Esperado vs Real · Balanz</div>
-          <div class="ch"><canvas id="ch-balanz"></canvas></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="panel-fiducia" class="panel">
-      <div class="g2">
-        <div class="box">
-          <div class="box-t">Proyección 2
+  // Función global para el botón "Cerrar sesión"
+  window.logoutUser = function() {
+    if (auth) signOut(auth);
+  }
+</script>
